@@ -61,6 +61,7 @@ logcmd docker run -d \
 	$RD_OPTION_RNODE_LAUNCHER_ARGS \
 	-XX:+HeapDumpOnOutOfMemoryError \
 	-XX:HeapDumpPath=/var/lib/rheapdumps/heap.hprof \
+	-Dlogback.configurationFile=/var/lib/rnode-static/logback.xml \
 	-p docker \
 	-c /var/lib/rnode-static/rnode.conf \
 	run $RD_OPTION_RNODE_RUN_ARGS
