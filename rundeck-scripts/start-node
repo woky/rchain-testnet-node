@@ -24,6 +24,14 @@ if [[ -n "$RD_OPTION_WALLETS_FILE_URL" ]]; then
 		"$RD_OPTION_WALLETS_FILE_URL"
 fi
 
+i=1
+while read pk; do
+	echo "$pk $((RD_OPTION_BOND_BASE_AMOUNT + 2**i))"
+	: $((i++))
+done \
+	< /var/lib/rnode-static/validator-public-keys.txt \
+	> /var/lib/rnode-static/bonds-10-testnet.txt
+
 logcmd 'cat /var/lib/rnode-static/bonds-*.txt >/var/lib/rnode/genesis/bonds.txt'
 logcmd ln -sf /var/lib/rnode-static/wallets.txt /var/lib/rnode/genesis/
 logcmd ln -sf /var/lib/rnode-static/node.*.pem /var/lib/rnode/
@@ -42,7 +50,7 @@ logcmd docker pull $RD_OPTION_RNODE_DOCKER_IMAGE || true
 logcmd docker run -d \
 	--name=rnode \
 	--network=host \
-	--env-file=/var/lib/rnode-static/env \
+	--env-file=/var/lib/rnode-static/environment \
 	-v /var/lib/rnode:/var/lib/rnode \
 	-v /var/lib/rheapdumps:/var/lib/rheapdumps \
 	-v /var/lib/rnode-static:/var/lib/rnode-static:ro \
