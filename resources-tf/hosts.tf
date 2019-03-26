@@ -50,10 +50,10 @@ resource "google_compute_instance" "node_host" {
 
   provisioner "file" {
     source = "${var.rchain_sre_git_crypt_key_file}"
-    destination = "/root/rchain-sre.git-crypt-key"
+    destination = "/root/rchain-sre-git-crypt-key"
   }
 
   provisioner "remote-exec" {
-    script = "../host-update-run-setup"
+    script = "../update-run-setup"
   }
 }

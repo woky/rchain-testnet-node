@@ -32,7 +32,7 @@ if [[ -e $state_file ]]; then
 	fi
 fi
 
-if [[ -e .git-crypt ]]; then
+if [[ -n "$GIT_CRYPT_KEY_FILE" ]]; then
 	( umask 077 && git-crypt unlock $GIT_CRYPT_KEY_FILE )
 fi
 
