@@ -39,6 +39,7 @@ resource "google_compute_instance" "node_host" {
     network = "${data.google_compute_network.default_network.self_link}"
     access_config {
       nat_ip = "${google_compute_address.node_ext_addr.*.address[count.index]}"
+      //public_ptr_domain_name = "node${count.index}${var.dns_suffix}."
     }
   }
 
