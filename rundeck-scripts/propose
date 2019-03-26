@@ -1,0 +1,24 @@
+#!/bin/bash
+set -e
+source "$(dirname $0)/functions"
+
+if [[ -n "$RD_OPTION_RAND_DELAY" ]]; then
+	sleep_time="$(shuf -n1 -i0-$RD_OPTION_RAND_DELAY)"
+	echo "Sleeping for $sleep_time seconds"
+	sleep "$sleep_time"
+fi
+
+echo "Proposing"
+ret=0
+output="$(docker exec rnode ./bin/rnode propose 2>&1)" || ret=$?
+
+if [[ $ret -ne 0 && "$output" == *NoNewDeploys* ]]; then
+	ret=0
+fi
+
+if (( ret )); then
+	echo "$output" >&2
+else
+	echo "$output"
+fi
+exit $ret

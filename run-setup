@@ -1,0 +1,28 @@
+#!/bin/bash
+set -e
+
+apt install -y --no-install-recommends \
+    apt-transport-https gnupg2 \
+    collectd
+
+curl -sSfL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+echo 'deb [arch=amd64] https://download.docker.com/linux/ubuntu cosmic stable' \
+    >/etc/apt/sources.list.d/docker-ce.list
+apt update
+apt install -y --no-install-recommends docker-ce
+
+install -C -m644 collectd.conf -t /etc/collectd/
+systemctl restart collectd
+
+curl -fsSL -z /opt/rdoctor/rdoctor -o /opt/rdoctor/rdoctor
+	https://build.rchain-dev.tk/misc/rdoctor/latest/linux.amd64/rdoctor \
+chmod +x /opt/rdoctor/rdoctor
+
+if ! grep -Fq rundeck /root/.ssh/authorized_keys; then
+	mkdir -p -m700 /root/.ssh
+	cat rundeck-id_rsa.pub >>/root/.ssh/authorized_keys
+fi
+
+mkdir -p -m700 /var/lib/rnode-static
+cp -u node-files/$(hostname -f)/* /var/lib/rnode-static/
+cp -u logback.xml /var/lib/rnode-static/

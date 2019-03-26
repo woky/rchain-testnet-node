@@ -1,0 +1,18 @@
+#!/bin/bash
+set -e
+source "$(dirname $0)/functions"
+
+if [[ -z "$RD_OPTION_CONTRACT" ]]; then
+	contract="$(docker exec rnode sh -c 'ls ./examples/*.rho' | sort -R | head -1)"
+	if [[ -z "$contract" ]]; then
+		exit 1
+	fi
+else
+	contract="./examples/$RD_OPTION_CONTRACT"
+fi
+
+echo "Deploying $contract"
+logcmd docker exec rnode ./bin/rnode deploy \
+	--phlo-limit 1000000000 \
+	--phlo-price 1 \
+	$contract

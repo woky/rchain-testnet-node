@@ -1,0 +1,99 @@
+#!/bin/bash
+set -e
+source "$(dirname $0)/functions"
+
+running_id="$(logcmd docker ps -q -f name=rnode)"
+if [[ -n "$running_id" ]]; then
+	echo "Node is already running"
+	exit 0
+fi
+
+logcmd mkdir -p /var/lib/rnode /var/lib/rnode/genesis
+
+if [[ -n "$RD_OPTION_BONDS_FILE_URL" ]]; then
+	logcmd curl -fsLS \
+		-z "$RD_OPTION_BONDS_FILE_URL" \
+		-o /var/lib/rnode-static/bonds-20-other.txt \
+		"$RD_OPTION_BONDS_FILE_URL"
+fi
+
+if [[ -n "$RD_OPTION_WALLETS_FILE_URL" ]]; then
+	logcmd curl -fsLS \
+		-z "$RD_OPTION_WALLETS_FILE_URL" \
+		-o /var/lib/rnode-static/wallets.txt \
+		"$RD_OPTION_WALLETS_FILE_URL"
+fi
+
+logcmd 'cat /var/lib/rnode-static/bonds-*.txt >/var/lib/rnode/genesis/bonds.txt'
+logcmd ln -sf /var/lib/rnode-static/wallets.txt /var/lib/rnode/genesis/
+logcmd ln -sf /var/lib/rnode-static/node.*.pem /var/lib/rnode/
+
+if [[ -e /var/lib/rnode-static/bootstrap ]]; then
+	if ! iptables -L rnode_init >/dev/null; then
+		logcmd iptables -N rnode_init
+		logcmd iptables -I INPUT 1 -p tcp -m multiport --dports 40400,40404 -j rnode_init
+	fi
+	logcmd iptables -A rnode_init -p tcp -m conntrack --ctstate ESTABLISHED -j ACCEPT
+	logcmd iptables -A rnode_init -p tcp -j REJECT --reject-with tcp-reset
+fi
+
+logcmd docker pull $RD_OPTION_RNODE_DOCKER_IMAGE || true
+
+logcmd docker run -d \
+	--name=rnode \
+	--network=host \
+	--env-file=/var/lib/rnode-static/env \
+	-v /var/lib/rnode:/var/lib/rnode \
+	-v /var/lib/rheapdumps:/var/lib/rheapdumps \
+	-v /var/lib/rnode-static:/var/lib/rnode-static:ro \
+	-v /opt/rdoctor:/opt/rdoctor:ro \
+	--entrypoint=/opt/rdoctor/rdoctor \
+	$RD_OPTION_RNODE_DOCKER_IMAGE \
+	/opt/docker/bin/rnode \
+	$RD_OPTION_RNODE_LAUNCHER_ARGS \
+	-XX:+HeapDumpOnOutOfMemoryError \
+	-XX:HeapDumpPath=/var/lib/rheapdumps/heap.hprof \
+	-p docker \
+	-c /var/lib/rnode-static/rnode.conf \
+	run $RD_OPTION_RNODE_RUN_ARGS
+
+i=6
+while (( i )); do
+	if [[ -n "$(docker ps -q -f name=rnode)" ]]; then
+		echo "RNode is running"
+		break
+	fi
+
+	echo "Waiting for RNode to start ($i tries left)"
+	logcmd sleep 5
+	: $((i--))
+done
+
+i=60
+while (( i )); do
+	if [[ -z "$(docker ps -q -f name=rnode)" ]]; then
+		echo "RNode is not running" >&2
+		exit 1
+	fi
+
+	height="$(docker exec rnode ./bin/rnode show-blocks | sed -n '/^count: /{s///;p;q}')"
+	if (( height )); then
+		echo "Found approved block"
+		break
+	fi
+
+	echo "Waiting for approved block ($i tries left)"
+	logcmd sleep 10
+	: $((i--))
+done
+
+if [[ -e /var/lib/rnode-static/bootstrap ]]; then
+	logcmd iptables -F rnode_init
+fi
+
+if (( i == 0 )); then
+	echo "Did not find approved block" >&2
+	exit 1
+fi
+
+echo Finished
