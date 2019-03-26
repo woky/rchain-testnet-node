@@ -24,6 +24,11 @@ if ! grep -Fq rundeck /root/.ssh/authorized_keys; then
 	cat rundeck-id_rsa.pub >>/root/.ssh/authorized_keys
 fi
 
+if ! grep -Fqx 'AcceptEnv RD_OPTION_*' /etc/ssh/sshd_config; then
+	echo 'AcceptEnv RD_OPTION_*' >>/etc/ssh/sshd_config
+	systemctl restart sshd
+fi
+
 mkdir -p -m700 /var/lib/rnode-static
 cp -u node-files/$(hostname -f)/* /var/lib/rnode-static/
 cp -u logback.xml /var/lib/rnode-static/
