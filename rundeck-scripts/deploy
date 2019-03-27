@@ -8,7 +8,11 @@ if [[ -z "$RD_OPTION_CONTRACT" ]]; then
 		exit 1
 	fi
 else
-	contract="./examples/$RD_OPTION_CONTRACT"
+	contract="$RD_OPTION_CONTRACT"
+fi
+
+if [[ $contract != */* ]] then
+	contract="./examples/$contract"
 fi
 
 echo "Deploying $contract"
