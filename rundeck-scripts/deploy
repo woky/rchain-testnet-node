@@ -1,18 +1,21 @@
 #!/bin/bash
-set -e
+set -e -o pipefail
 source "$(dirname $0)/functions"
 
 if [[ -z "$RD_OPTION_CONTRACT" ]]; then
 	contract="$(docker exec rnode sh -c 'ls ./examples/*.rho' | sort -R | head -1)"
-	if [[ -z "$contract" ]]; then
-		exit 1
-	fi
+elif [[ "$RD_OPTION_CONTRACT" =~ ^https?:// ]]; then
+	contract=/var/lib/rnode-static/rundeck-contract.rho
+	logcmd curl -fL -o $contract "$RD_OPTION_CONTRACT"
+elif [[ $RD_OPTION_CONTRACT != */* ]]; then
+	contract="./examples/$RD_OPTION_CONTRACT"
 else
 	contract="$RD_OPTION_CONTRACT"
 fi
 
-if [[ $contract != */* ]]; then
-	contract="./examples/$contract"
+if [[ -z "$contract" ]] || ! docker exec rnode test -f "$contract"; then
+	echo "No such contract: '$contract'" >&2
+	exit 1
 fi
 
 echo "Deploying $contract"
