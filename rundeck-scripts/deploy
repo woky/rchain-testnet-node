@@ -11,7 +11,7 @@ else
 	contract="$RD_OPTION_CONTRACT"
 fi
 
-if [[ $contract != */* ]] then
+if [[ $contract != */* ]]; then
 	contract="./examples/$contract"
 fi
 
