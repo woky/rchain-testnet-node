@@ -12,14 +12,16 @@ logcmd mkdir -p /var/lib/rnode /var/lib/rnode/genesis
 
 try_download_file()
 {
-	local url="$1" file=/var/lib/rnode-static/$2
+	local url="$1" file=/var/lib/rnode-static/$2 status
 	if [[ -z "$url" ]]; then
 		return 0
 	fi
-	logcmd curl -fsSL -z $file -o $file.new "$url" || true
+	status="$(logcmd curl -fsSL -z $file -o $file.new "$url" || true)"
 	if [[ -e $file.new ]]; then
 		mv $file "$file.bak$(date -Is)"
 		mv $file.new $file
+	elif [[ "$status" == 404 ]]; then
+		mv $file "$file.bak$(date -Is)"
 	fi
 }
 
