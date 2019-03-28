@@ -29,7 +29,7 @@ resource "google_compute_instance" "node_host" {
 
   tags = [
     "${var.resources_name}-node-public",
-    "${var.resources_name}-node-grpc",
+    "${var.resources_name}-node-rpc",
     "collectd-out",
     "elasticsearch-out",
     "logstash-tcp-out"
