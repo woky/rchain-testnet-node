@@ -36,10 +36,10 @@ for i in {0..9}; do
 	node_dir="$out_dir/$host"
 	mkdir -p "$node_dir"
 	$scripts_dir/generate-node-files $host "$node_dir" "$bootstrap_url"
-	source "$node_dir/environment"
 	if [[ -z "$bootstrap_url" ]]; then
-		bootstrap_url="$RNODE_URL"
+		bootstrap_url="$(jq -r .rnode.server.bootstrap "$node_dir/rnode.conf")"
 		touch "$node_dir/bootstrap"
 	fi
-	echo "$VALIDATOR_PUB_KEY" >>"$out_dir/validator-public-keys.txt"
+	jq -r .rnode.casper.'"validator-public-key"' "$node_dir/rnode.conf" \
+		>>"$out_dir/validator-public-keys.txt"
 done

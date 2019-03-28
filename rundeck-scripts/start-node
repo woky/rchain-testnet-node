@@ -54,7 +54,7 @@ logcmd docker pull $RD_OPTION_RNODE_DOCKER_IMAGE || true
 logcmd docker run -d \
 	--name=rnode \
 	--network=host \
-	--env-file=/var/lib/rnode-static/environment \
+	--env-file=/var/lib/rnode-static/environment.docker \
 	-v /var/lib/rnode:/var/lib/rnode \
 	-v /var/lib/rheapdumps:/var/lib/rheapdumps \
 	-v /var/lib/rnode-static:/var/lib/rnode-static:ro \
