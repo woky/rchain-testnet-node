@@ -26,14 +26,20 @@ source $venv_dir/bin/activate
 pip3 install -r "$scripts_dir/requirements.txt"
 
 bootstrap_url=
+
 umask 077
+mkdir -p "$out_dir"
+echo -n >"$out_dir/validator-public-keys.txt"
 
 for i in {0..9}; do
 	host=node$i.testnet.rchain-dev.tk
 	node_dir="$out_dir/$host"
 	mkdir -p "$node_dir"
 	$scripts_dir/generate-node-files $host "$node_dir" "$bootstrap_url"
+	source "$node_dir/environment"
 	if [[ -z "$bootstrap_url" ]]; then
-		bootstrap_url="$(source "$node_dir/environment" && echo "$RNODE_URL")"
+		bootstrap_url="$RNODE_URL"
+		touch "$node_dir/bootstrap"
 	fi
+	echo "$VALIDATOR_PUB_KEY" >>"$out_dir/validator-public-keys.txt"
 done

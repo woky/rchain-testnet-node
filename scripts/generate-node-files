@@ -70,6 +70,8 @@ os.umask(0o77)
 with (out_dir / 'environment').open('w') as f:
     f.write(f'RNODE_URL="{rnode_url}"\n')
     f.write(f'RDOCTOR_APIKEY="{rdoctor_apikey}"\n')
+    f.write(f'VALIDATOR_KEY="{key}"\n')
+    f.write(f'VALIDATOR_PUB_KEY="{pub_key}"\n')
 
 (out_dir / 'rnode.conf').write_text(json.dumps(rnode_conf, indent=4))
 (out_dir / 'node.key.pem').write_text(tls_key)
