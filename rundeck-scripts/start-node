@@ -17,11 +17,11 @@ try_download_file()
 		return 0
 	fi
 	status="$(logcmd curl -fsSL -w '%{http_code}' -z $file -o $file.new "$url")" || true
+	if [[ ( -e $file.new || "$status" == 404 ) && -e $file ]]; then
+		logcmd mv $file "$file.bak$(date -Is)"
+	fi
 	if [[ -e $file.new ]]; then
-		logcmd mv $file "$file.bak$(date -Is)"
 		logcmd mv $file.new $file
-	elif [[ "$status" == 404 ]]; then
-		logcmd mv $file "$file.bak$(date -Is)"
 	fi
 }
 
