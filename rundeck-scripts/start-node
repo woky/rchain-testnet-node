@@ -10,19 +10,21 @@ fi
 
 logcmd mkdir -p /var/lib/rnode /var/lib/rnode/genesis
 
-if [[ -n "$RD_OPTION_BONDS_FILE_URL" ]]; then
-	logcmd curl -fsLS \
-		-z "$RD_OPTION_BONDS_FILE_URL" \
-		-o /var/lib/rnode-static/bonds-20-other.txt \
-		"$RD_OPTION_BONDS_FILE_URL"
-fi
+try_download_file()
+{
+	local url="$1" file=/var/lib/rnode-static/$2
+	if [[ -z "$url" ]]; then
+		return 0
+	fi
+	logcmd curl -fsSL -z $file -o $file.new "$url" || true
+	if [[ -e $file.new ]]; then
+		mv $file "$file.bak$(date -Is)"
+		mv $file.new $file
+	fi
+}
 
-if [[ -n "$RD_OPTION_WALLETS_FILE_URL" ]]; then
-	logcmd curl -fsLS \
-		-z "$RD_OPTION_WALLETS_FILE_URL" \
-		-o /var/lib/rnode-static/wallets.txt \
-		"$RD_OPTION_WALLETS_FILE_URL"
-fi
+try_download_file "$RD_OPTION_BONDS_FILE_URL" bonds-20-other.txt
+try_download_file "$RD_OPTION_BONDS_FILE_URL" wallets.txt
 
 i=1
 while read pk; do
