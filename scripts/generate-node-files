@@ -1,0 +1,76 @@
+#!/usr/bin/env python3
+
+import sys, os
+import json
+from subprocess import check_output
+from pathlib import Path
+
+import lib_rchain_key
+import lib_rnode_tls
+
+if len(sys.argv) < 3:
+    print(
+        f'Usage: {sys.argv[0]} <hostname> <out-dir> [bootstrap-url]',
+        file=sys.stderr)
+    sys.exit(1)
+
+hostname = sys.argv[1]
+out_dir = Path(sys.argv[2])
+bootstrap_url = None
+if len(sys.argv) > 3:
+    bootstrap_url = sys.argv[3]
+
+######################################################################
+# Generate / fetch keys
+
+key, pub_key = lib_rchain_key.generate_key_pair_hex()
+tls_key, tls_cert, node_id = lib_rnode_tls.generate_node_tls_key_cert_id()
+
+rdoctor_apikey = check_output([
+    'curl', '-fsSL', '-XPOST',
+    'https://rdoctor.rchain-dev.tk/api/newkey?identity=' + hostname
+], text=True) # yapf:disable
+
+######################################################################
+# Create dependant values
+
+rnode_url = 'rnode://{}@{}?protocol={}&discovery={}'.format(
+    node_id, hostname, 40400, 40404)
+
+rnode_conf = {
+    'rnode': {
+        'casper': {
+            'validator-private-key': key,
+            'validator-public-key': pub_key,
+            'wallets-file': '/var/lib/rnode-static/wallets.txt',
+        },
+        'server': {
+            'host': hostname,
+            'standalone': not bootstrap_url,
+            'bootstrap': bootstrap_url or rnode_url,
+            'upnp': False,
+            'port': 40400,
+            'port-kademlia': 40404,
+            'tls': {
+                'key': '/var/lib/rnode-static/node.key.pem',
+                'certificate': '/var/lib/rnode-static/node.certificate.pem',
+            },
+        },
+        'grpc': {
+            'port-external': 40401,
+        }
+    }
+}
+
+######################################################################
+# Save it
+
+os.umask(0o77)
+
+with (out_dir / 'environment').open('w') as f:
+    f.write(f'RNODE_URL="{rnode_url}"\n')
+    f.write(f'RDOCTOR_APIKEY="{rdoctor_apikey}"\n')
+
+(out_dir / 'rnode.conf').write_text(json.dumps(rnode_conf, indent=4))
+(out_dir / 'node.key.pem').write_text(tls_key)
+(out_dir / 'node.certificate.pem').write_text(tls_cert)

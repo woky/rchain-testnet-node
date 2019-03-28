@@ -1,0 +1,39 @@
+#!/bin/bash
+set -e
+
+if [[ -z "$BASH_SOURCE" ]]; then
+	echo "Cannot run from stdin" >&2
+	exit 1
+fi
+
+if [[ $# -ne 1 ]]; then
+	echo "Usage: $0 <nodes-dir>" >&2
+	exit 1
+fi
+
+out_dir="$1"
+scripts_dir="$(dirname "$0")"
+
+cleanup()
+{
+	rm -r $venv_dir
+}
+trap cleanup EXIT
+venv_dir="$(mktemp -d $(basename "$0").XXXXXXXX)"
+
+python3 -mvenv $venv_dir
+source $venv_dir/bin/activate
+pip3 install -r "$scripts_dir/requirements.txt"
+
+bootstrap_url=
+umask 077
+
+for i in {0..9}; do
+	host=node$i.testnet.rchain-dev.tk
+	node_dir="$out_dir/$host"
+	mkdir -p "$node_dir"
+	$scripts_dir/generate-node-files $host "$node_dir" "$bootstrap_url"
+	if [[ -z "$bootstrap_url" ]]; then
+		bootstrap_url="$(source "$node_dir/environment" && echo "$RNODE_URL")"
+	fi
+done

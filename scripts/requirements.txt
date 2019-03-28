@@ -1,0 +1,4 @@
+pynacl
+pycryptodome
+eth-hash[pycryptodome]
+cryptography
