@@ -26,7 +26,7 @@ try_download_file()
 }
 
 try_download_file "$RD_OPTION_BONDS_FILE_URL" bonds-20-other.txt
-try_download_file "$RD_OPTION_BONDS_FILE_URL" wallets.txt
+try_download_file "$RD_OPTION_WALLETS_FILE_URL" wallets.txt
 
 i=1
 while read pk; do
