@@ -16,7 +16,7 @@ try_download_file()
 	if [[ -z "$url" ]]; then
 		return 0
 	fi
-	status="$(logcmd curl -sSL -w '%{http_code}' -z $file -o $file.new "$url")"
+	status="$(logcmd curl -fsSL -w '%{http_code}' -z $file -o $file.new "$url")" || true
 	if [[ -e $file.new ]]; then
 		logcmd mv $file "$file.bak$(date -Is)"
 		logcmd mv $file.new $file
