@@ -97,7 +97,7 @@ while (( i )); do
 		echo "RNode is not running" >&2
 		exit 1
 	fi
-	height="$(docker exec rnode ./bin/rnode show-blocks | sed -n '/^count: /{s///;p;q}')"
+	height="$(docker exec rnode ./bin/rnode show-blocks | sed -n '/^count: /{s///;p;q}')" || true
 	if (( height )); then
 		echo "Found approved block"
 		break
