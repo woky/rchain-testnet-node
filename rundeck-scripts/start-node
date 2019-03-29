@@ -51,7 +51,6 @@ if ! iptables -L rnode_init >/dev/null; then
 	logcmd iptables -I INPUT 1 -p tcp -m multiport --dports 40400,40401,40404 -j rnode_init
 fi
 logcmd iptables -F rnode_init
-logcmd iptables -A rnode_init -i lo -j ACCEPT
 logcmd iptables -A rnode_init -s $bootstrap_ip -j ACCEPT
 logcmd iptables -A rnode_init -p tcp -m conntrack --ctstate ESTABLISHED -j ACCEPT
 logcmd iptables -A rnode_init -p tcp -j REJECT --reject-with tcp-reset
