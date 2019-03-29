@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -e -o pipefail
 source "$(dirname $0)/functions"
 
 running_id="$(logcmd docker ps -q -f name=rnode)"
@@ -40,14 +40,20 @@ logcmd 'cat /var/lib/rnode-static/bonds-*.txt >/var/lib/rnode/genesis/bonds.txt'
 logcmd ln -sf /var/lib/rnode-static/wallets.txt /var/lib/rnode/genesis/
 logcmd ln -sf /var/lib/rnode-static/node.*.pem /var/lib/rnode/
 
-if [[ -e /var/lib/rnode-static/bootstrap ]]; then
-	if ! iptables -L rnode_init >/dev/null; then
-		logcmd iptables -N rnode_init
-		logcmd iptables -I INPUT 1 -p tcp -m multiport --dports 40400,40404 -j rnode_init
-	fi
-	logcmd iptables -A rnode_init -p tcp -m conntrack --ctstate ESTABLISHED -j ACCEPT
-	logcmd iptables -A rnode_init -p tcp -j REJECT --reject-with tcp-reset
+bootstrap_url="$(jq -r .rnode.server.bootstrap </var/lib/rnode-static/rnode.conf)"
+bootstrap_hostname="$(sed 's/.*@//; s/?.*//' <<<"$bootstrap_url")"
+bootstrap_ip="$(dig +short $bootstrap_hostname A | tail -1)"
+
+echo "Bootstrap IP address is $bootstrap_ip"
+
+if ! iptables -L rnode_init >/dev/null; then
+	logcmd iptables -N rnode_init
+	logcmd iptables -I INPUT 1 -p tcp -m multiport --dports 40400,40401,40404 -j rnode_init
 fi
+logcmd iptables -F rnode_init
+logcmd iptables -A rnode_init -s $bootstrap_ip -j ACCEPT
+logcmd iptables -A rnode_init -p tcp -m conntrack --ctstate ESTABLISHED -j ACCEPT
+logcmd iptables -A rnode_init -p tcp -j REJECT --reject-with tcp-reset
 
 logcmd docker pull $RD_OPTION_RNODE_DOCKER_IMAGE || true
 
@@ -99,9 +105,7 @@ while (( i )); do
 	: $((i--))
 done
 
-if [[ -e /var/lib/rnode-static/bootstrap ]]; then
-	logcmd iptables -F rnode_init
-fi
+logcmd iptables -F rnode_init
 
 if (( i == 0 )); then
 	echo "Did not find approved block" >&2
