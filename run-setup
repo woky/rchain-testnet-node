@@ -3,7 +3,7 @@ set -e
 
 apt install -y --no-install-recommends \
     apt-transport-https gnupg2 \
-    collectd jq dnsutils
+    collectd liboping0 jq dnsutils
 
 curl -sSfL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 echo 'deb [arch=amd64] https://download.docker.com/linux/ubuntu cosmic stable' \
