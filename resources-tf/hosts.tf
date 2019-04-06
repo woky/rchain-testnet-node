@@ -32,7 +32,8 @@ resource "google_compute_instance" "node_host" {
     "${var.resources_name}-node-rpc",
     "collectd-out",
     "elasticsearch-out",
-    "logstash-tcp-out"
+    "logstash-tcp-out",
+    "logspout-http"
   ]
 
   network_interface {
