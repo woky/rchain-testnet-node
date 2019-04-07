@@ -31,7 +31,7 @@ echo 'deb [arch=amd64] https://download.docker.com/linux/ubuntu cosmic stable' \
     >/etc/apt/sources.list.d/docker-ce.list
 
 curl -sSfL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-echo "deb http://packages.cloud.google.com/apt gcsfuse-cosmic main" \
+echo "deb http://packages.cloud.google.com/apt gcsfuse-bionic main" \
 	>/etc/apt/sources.list.d/gcsfuse.list
 
 apt update
