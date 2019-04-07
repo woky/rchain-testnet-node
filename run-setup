@@ -58,3 +58,8 @@ fi
 mkdir -p -m700 /var/lib/rnode-static
 cp -u node-files/$(hostname).testnet.rchain-dev.tk/* /var/lib/rnode-static/
 cp -u logback.xml node-files/validator-public-keys.txt /var/lib/rnode-static/
+
+mkdir -p /mnt/heapdumps
+install -C -m644 heapdumps.mount -t /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable --now heapdumps.mount
