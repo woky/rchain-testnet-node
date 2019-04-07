@@ -44,6 +44,8 @@ resource "google_compute_instance" "node_host" {
     }
   }
 
+  depends_on = [ "google_dns_record_set.node_dns_record" ]
+
   connection {
     type = "ssh"
     user = "root"
