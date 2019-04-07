@@ -65,7 +65,7 @@ logcmd docker run -d \
 	--network=host \
 	--env-file=/var/lib/rnode-static/environment.docker \
 	-v /var/lib/rnode:/var/lib/rnode \
-	-v /var/lib/rheapdumps:/var/lib/rheapdumps \
+	-v /mnt/heapdumps:/mnt/heapdumps \
 	-v /var/lib/rnode-static:/var/lib/rnode-static:ro \
 	-v /opt/rdoctor:/opt/rdoctor:ro \
 	--entrypoint=/opt/rdoctor/rdoctor \
