@@ -36,6 +36,11 @@ resource "google_compute_instance" "node_host" {
     "logspout-http"
   ]
 
+  service_account {
+    email = "${google_service_account.svc_account_node.email}"
+    scopes = [ "https://www.googleapis.com/auth/cloud-platform" ]
+  }
+  
   network_interface {
     network = "${data.google_compute_network.default_network.self_link}"
     access_config {
