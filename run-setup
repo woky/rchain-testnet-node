@@ -7,6 +7,9 @@ while [[ "$(hostname -f)" == *.internal ]]; do
 	sleep 5
 done
 
+# Due to the issue https://github.com/oetiker/rrdtool-1.x/issues/794
+# present in librrd 1.7.0, current version in Ubuntu cosmic/18.10,
+# collectd creates files with permissions 0066.
 apt install -y librrd8
 librrd_ver="$(dpkg-query -W -f '${Version}' librrd8)"
 if dpkg --compare-versions $librrd_ver lt '1.7.1'; then
