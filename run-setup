@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e -o pipefail
 
+while [[ "$(hostname -f)" == *.internal ]]; do
+	systemctl restart systemd-networkd
+	echo "Waiting for FQDN..."
+	sleep 5
+done
+
 apt install -y librrd8
 librrd_ver="$(dpkg-query -W -f '${Version}' librrd8)"
 if dpkg --compare-versions $librrd_ver lt '1.7.1'; then
