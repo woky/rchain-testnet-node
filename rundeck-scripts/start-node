@@ -43,8 +43,7 @@ logcmd ln -sf /var/lib/rnode-static/node.*.pem /var/lib/rnode/
 bootstrap_url="$(jq -r .rnode.server.bootstrap </var/lib/rnode-static/rnode.conf)"
 bootstrap_hostname="$(sed 's/.*@//; s/?.*//' <<<"$bootstrap_url")"
 bootstrap_ip="$(dig +short $bootstrap_hostname A | tail -1)"
-
-echo "Bootstrap IP address is $bootstrap_ip"
+echo "Bootstrap IP address: $bootstrap_ip"
 
 if ! iptables -L rnode_init >/dev/null; then
 	logcmd iptables -N rnode_init
@@ -57,6 +56,9 @@ logcmd iptables -A rnode_init -p tcp -m conntrack --ctstate ESTABLISHED -j ACCEP
 logcmd iptables -A rnode_init -p tcp -j REJECT --reject-with tcp-reset
 
 logcmd docker pull $RD_OPTION_RNODE_DOCKER_IMAGE || true
+
+start_time="$(date -Is|sed 's/+.*//; s/[^0-9-]/-/g')"
+echo "Start time: $start_time"
 
 logcmd docker run -d \
 	--name=rnode \
@@ -71,7 +73,7 @@ logcmd docker run -d \
 	/opt/docker/bin/rnode \
 	$RD_OPTION_RNODE_LAUNCHER_ARGS \
 	-XX:+HeapDumpOnOutOfMemoryError \
-	-XX:HeapDumpPath=/var/lib/rheapdumps/heap.hprof \
+	-XX:HeapDumpPath=/mnt/heapdumps/"$(hostname -f)"-$start_time.hprof
 	-Dlogback.configurationFile=/var/lib/rnode-static/logback.xml \
 	-p docker \
 	-c /var/lib/rnode-static/rnode.conf \
