@@ -6,12 +6,14 @@ if [[ -z "$BASH_SOURCE" ]]; then
 	exit 1
 fi
 
-if [[ $# -ne 1 ]]; then
-	echo "Usage: $0 <nodes-dir>" >&2
+if [[ $# -ne 3 ]]; then
+	echo "Usage: $0 <nodes-dir> <domain> <count>" >&2
 	exit 1
 fi
 
 out_dir="$1"
+domain="$2"
+count="$3"
 scripts_dir="$(dirname "$0")"
 
 cleanup()
@@ -31,8 +33,8 @@ umask 077
 mkdir -p "$out_dir"
 echo -n >"$out_dir/validator-public-keys.txt"
 
-for i in {0..9}; do
-	host=node$i.testnet.rchain-dev.tk
+for i in $(seq 0 $((count-1))); do
+	host=node$i.$domain
 	node_dir="$out_dir/$host"
 	mkdir -p "$node_dir"
 	$scripts_dir/generate-node-files $host "$node_dir" "$bootstrap_url"
