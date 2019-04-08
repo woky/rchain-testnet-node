@@ -2,7 +2,7 @@
 set -e -o pipefail
 source "$(dirname $0)/functions"
 
-java_pid="$(pgrep -x java | tail -1)"
+java_pid="$(pgrep -x java | tail -1)" || true
 
 if [[ -z "$java_pid" ]]; then
 	echo "No java process is running" >&2
