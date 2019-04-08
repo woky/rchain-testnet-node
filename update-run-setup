@@ -94,6 +94,8 @@ fi
 
 # Run main setup script exclusively
 
+export PROFILE
+
 ret=0
 flock -x -n -E 77 $state_file ./run-setup || ret=$?
 case $ret in

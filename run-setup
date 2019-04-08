@@ -58,8 +58,9 @@ if ! grep -Fqx 'AcceptEnv RD_OPTION_*' /etc/ssh/sshd_config; then
 fi
 
 mkdir -p -m700 /var/lib/rnode-static
-cp -u node-files/$(hostname).testnet.rchain-dev.tk/* /var/lib/rnode-static/
-cp -u logback.xml node-files/validator-public-keys.txt /var/lib/rnode-static/
+files_dir="node-files${PROFILE:+.$PROFILE}"
+cp -u $files_dir/$(hostname).testnet.rchain-dev.tk/* /var/lib/rnode-static/
+cp -u logback.xml $files_dir/validator-public-keys.txt /var/lib/rnode-static/
 
 mkdir -p /mnt/heapdumps
 install -C -m644 mnt-heapdumps.mount -t /etc/systemd/system/
