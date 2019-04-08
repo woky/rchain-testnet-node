@@ -18,7 +18,10 @@ if [[ -z "$REPO_DIR" ]]; then
 	else
 		# We're probably run by Cron
 		REPO_DIR="$(dirname $(readlink -e ${BASH_SOURCE[0]}))"
-		source "$REPO_DIR/bootstrap"
+		if [[ "$0" =~ _([[:alnum]]+)$ ]]; then
+			PROFILE=${BASH_REMATCH[1]}
+		fi
+		source "$REPO_DIR/bootstrap${PROFILE:+.$PROFILE}"
 	fi
 fi
 
@@ -30,7 +33,7 @@ fi
 # Initialize other variables
 
 state_file="/var/cache/$(basename $REPO_DIR)-setup-gitrev"
-cron_symlink="/etc/cron.hourly/$(basename $REPO_DIR)-update-run-setup"
+cron_symlink="/etc/cron.hourly/$(basename $REPO_DIR)-update-run-setup${PROFILE:+_$PROFILE}"
 
 # Make sure we don't conflict with apt.systemd.daily
 
