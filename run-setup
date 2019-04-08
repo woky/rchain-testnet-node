@@ -59,7 +59,7 @@ fi
 
 mkdir -p -m700 /var/lib/rnode-static
 files_dir="node-files${PROFILE:+.$PROFILE}"
-cp -u $files_dir/$(hostname).testnet.rchain-dev.tk/* /var/lib/rnode-static/
+cp -u $files_dir/$(hostname).*/* /var/lib/rnode-static/
 cp -u logback.xml $files_dir/validator-public-keys.txt /var/lib/rnode-static/
 
 mkdir -p /mnt/heapdumps
