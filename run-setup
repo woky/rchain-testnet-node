@@ -24,7 +24,8 @@ fi
 
 apt install -y --no-install-recommends \
     apt-transport-https gnupg2 \
-    collectd liboping0 jq dnsutils
+    collectd liboping0 jq dnsutils \
+	bpfcc-tools iotop
 
 curl -sSfL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 echo 'deb [arch=amd64] https://download.docker.com/linux/ubuntu cosmic stable' \
