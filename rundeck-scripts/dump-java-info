@@ -16,14 +16,15 @@ echo "Info directory: $dir_name"
 
 out_dir=/mnt/heapdumps/$dir_name
 mkdir $out_dir
-logcmd jcmd $java_pid GC.class_histogram $out_dir/jcmd_GC_class_histogram.txt
-logcmd jcmd $java_pid GC.class_stats $out_dir/jcmd_GC_class_stats.txt
-logcmd jcmd $java_pid GC.heap_info $out_dir/jcmd_GC_heap_info.txt
-logcmd jcmd $java_pid Thread.print $out_dir/jcmd_Thread_print.txt
-logcmd jcmd $java_pid VM.classloader_stats $out_dir/jcmd_VM_classloader_stats.txt
-logcmd jcmd $java_pid VM.command_line $out_dir/jcmd_VM_command_line.txt
-logcmd jcmd $java_pid VM.dynlibs $out_dir/jcmd_VM_dynlibs.txt
-logcmd jcmd $java_pid VM.flags $out_dir/jcmd_VM_flags.txt
-logcmd jcmd $java_pid VM.info $out_dir/jcmd_VM_info.txt
-logcmd jcmd $java_pid VM.metaspace $out_dir/jcmd_VM_metaspace.txt
-logcmd jcmd $java_pid VM.version $out_dir/jcmd_VM_version.txt
+logcmd jcmd $java_pid GC.class_histogram >$out_dir/jcmd_GC_class_histogram.txt
+logcmd jcmd $java_pid GC.class_stats >$out_dir/jcmd_GC_class_stats.txt
+logcmd jcmd $java_pid GC.heap_info >$out_dir/jcmd_GC_heap_info.txt
+logcmd jcmd $java_pid Thread.print >$out_dir/jcmd_Thread_print.txt
+logcmd jcmd $java_pid VM.classloader_stats >$out_dir/jcmd_VM_classloader_stats.txt
+logcmd jcmd $java_pid VM.command_line >$out_dir/jcmd_VM_command_line.txt
+logcmd jcmd $java_pid VM.dynlibs >$out_dir/jcmd_VM_dynlibs.txt
+logcmd jcmd $java_pid VM.flags >$out_dir/jcmd_VM_flags.txt
+logcmd jcmd $java_pid VM.info >$out_dir/jcmd_VM_info.txt
+logcmd jcmd $java_pid VM.metaspace >$out_dir/jcmd_VM_metaspace.txt
+logcmd jcmd $java_pid VM.system_properties | sort >$out_dir/jcmd_VM_system_properties.txt
+logcmd jcmd $java_pid VM.version >$out_dir/jcmd_VM_version.txt
