@@ -18,3 +18,8 @@ def get_public_key_hex(sk_hex):
     sk = nacl.signing.SigningKey(sk_hex, encoder=HexEncoder)
     pk = sk.verify_key
     return pk.encode(encoder=HexEncoder).decode('ascii')
+
+if __name__ == '__main__':
+    sk, pk = generate_key_pair_hex()
+    print(sk)
+    print(pk)
