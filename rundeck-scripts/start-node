@@ -2,13 +2,13 @@
 set -e -o pipefail
 source "$(dirname $0)/functions"
 
-running_id="$(logcmd docker ps -q -f name=rnode)"
+running_id="$(logcmd docker ps -q -f name='^rnode$')"
 if [[ -n "$running_id" ]]; then
 	echo "Node is already running"
 	exit 0
 fi
 
-if [[ -n "$(logcmd docker ps -qa -f name=rnode)" ]]; then
+if [[ -n "$(logcmd docker ps -qa -f name='^rnode$')" ]]; then
 	archived_name="rnode.$(date +%s)"
 	echo "Existing dead container found, renaming to $archived_name"
 	logcmd docker rename rnode $archived_name
