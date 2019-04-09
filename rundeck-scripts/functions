@@ -1,4 +1,5 @@
 TAG="$(hostname -f)-${RD_OPTION_DUMP_TAG:-$(date -Im|sed 's/+.*//; s/[^0-9-]/-/g')}"
+DUMP_PREFIX="/mnt/heapdumps/$TAG"
 
 logcmd()
 {

@@ -2,9 +2,8 @@
 set -e -o pipefail
 source "$(dirname $0)/functions"
 
-dir_name="${TAG}_info"
-out_dir=/mnt/heapdumps/$dir_name
-echo "Info directory: $dir_name"
+out_dir="${DUMP_PREFIX}_info"
+echo "Output directory: $out_dir"
 logcmd mkdir -p $out_dir
 
 java_pid="$(pgrep -x java | tail -1)" || true

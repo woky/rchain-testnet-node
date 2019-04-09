@@ -10,6 +10,6 @@ if [[ -z "$java_pid" ]]; then
 fi
 
 echo "Java process PID: $java_pid"
-echo "Heap dump filename: $TAG.hprof"
+echo "Output file: $DUMP_PREFIX.hprof"
 
-logcmd jcmd $java_pid GC.heap_dump /mnt/heapdumps/$TAG.hprof
+logcmd jcmd $java_pid GC.heap_dump $DUMP_PREFIX.hprof
