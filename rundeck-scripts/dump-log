@@ -1,0 +1,10 @@
+#!/bin/bash
+set -e -o pipefail
+source "$(dirname $0)/functions"
+
+if [[ -n "$(docker ps -qa -f name=rnode)" ]]; then
+	echo "Log file: $TAG.log"
+	logcmd docker logs rnode >$TAG.log 2>&1
+else
+	echo "Container 'rnode' does not exist" >&2
+fi
