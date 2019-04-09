@@ -10,7 +10,8 @@ fi
 
 echo "Proposing"
 ret=0
-output="$(docker exec rnode ./bin/rnode propose 2>&1)" || ret=$?
+output="$(docker exec rnode \
+	./bin/rnode -c /var/lib/rnode-static/rnode.conf propose 2>&1)" || ret=$?
 
 if [[ $ret -ne 0 && "$output" == *NoNewDeploys* ]]; then
 	ret=0

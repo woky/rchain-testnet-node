@@ -21,6 +21,7 @@ fi
 echo "Deploying $contract"
 logcmd docker exec rnode ./bin/rnode \
 	$RD_OPTION_RNODE_LAUNCHER_ARGS \
+	-c /var/lib/rnode-static/rnode.conf \
 	deploy \
 	--phlo-limit 1000000000 \
 	--phlo-price 1 \
