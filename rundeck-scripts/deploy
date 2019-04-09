@@ -19,7 +19,10 @@ if [[ -z "$contract" ]] || ! docker exec rnode test -f "$contract"; then
 fi
 
 echo "Deploying $contract"
-logcmd docker exec rnode ./bin/rnode deploy \
+logcmd docker exec rnode ./bin/rnode \
+	$RD_OPTION_RNODE_LAUNCHER_ARGS \
+	deploy \
 	--phlo-limit 1000000000 \
 	--phlo-price 1 \
+	$RD_OPTION_RNODE_DEPLOY_ARGS \
 	$contract
