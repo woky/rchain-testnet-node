@@ -2,9 +2,7 @@
 set -e -o pipefail
 source "$(dirname $0)/functions"
 
-tag="${RD_OPTION_DUMP_TAG:-$(date -Is|sed 's/+.*//; s/[^0-9-]/-/g')}"
-
-dir_name="$(hostname -f)-$tag_info"
+dir_name="${TAG}_info"
 out_dir=/mnt/heapdumps/$dir_name
 echo "Info directory: $dir_name"
 logcmd mkdir -p $out_dir

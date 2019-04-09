@@ -1,3 +1,5 @@
+TAG="$(hostname -f)-${RD_OPTION_DUMP_TAG:-$(date -Is|sed 's/+.*//; s/[^0-9-]/-/g')}"
+
 logcmd()
 {
 	echo ">> $@" >&2
