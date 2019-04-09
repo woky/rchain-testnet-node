@@ -8,10 +8,10 @@ if [[ -n "$running_id" ]]; then
 	exit 0
 fi
 
-if [[ -n "$(docker ps -qa -f name=rnode)" ]]; then
+if [[ -n "$(logcmd docker ps -qa -f name=rnode)" ]]; then
 	archived_name="rnode.$(date +%s)"
 	echo "Existing dead container found, renaming to $archived_name"
-	docker rename rnode $archived_name
+	logcmd docker rename rnode $archived_name
 fi
 
 logcmd mkdir -p /var/lib/rnode /var/lib/rnode/genesis
