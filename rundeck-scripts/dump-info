@@ -1,0 +1,34 @@
+#!/bin/bash
+set -e -o pipefail
+source "$(dirname $0)/functions"
+
+tag="${RD_OPTION_DUMP_TAG:-$(date -Is|sed 's/+.*//; s/[^0-9-]/-/g')}"
+
+dir_name="$(hostname -f)-$tag_info"
+out_dir=/mnt/heapdumps/$dir_name
+echo "Info directory: $dir_name"
+logcmd mkdir -p $out_dir
+
+java_pid="$(pgrep -x java | tail -1)" || true
+if [[ -n "$java_pid" ]]; then
+	echo "Java process PID: $java_pid"
+	logcmd jcmd $java_pid GC.class_histogram >$out_dir/jcmd_GC_class_histogram.txt
+	logcmd jcmd $java_pid GC.class_stats >$out_dir/jcmd_GC_class_stats.txt
+	logcmd jcmd $java_pid GC.heap_info >$out_dir/jcmd_GC_heap_info.txt
+	logcmd jcmd $java_pid Thread.print >$out_dir/jcmd_Thread_print.txt
+	logcmd jcmd $java_pid VM.classloader_stats >$out_dir/jcmd_VM_classloader_stats.txt
+	logcmd jcmd $java_pid VM.command_line >$out_dir/jcmd_VM_command_line.txt
+	logcmd jcmd $java_pid VM.flags >$out_dir/jcmd_VM_flags.txt
+	logcmd jcmd $java_pid VM.info >$out_dir/jcmd_VM_info.txt
+	logcmd jcmd $java_pid VM.metaspace >$out_dir/jcmd_VM_metaspace.txt
+	logcmd jcmd $java_pid VM.system_properties | sort >$out_dir/jcmd_VM_system_properties.txt
+	logcmd jcmd $java_pid VM.version >$out_dir/jcmd_VM_version.txt
+else
+	echo "No java process is running" >&2
+fi
+
+if [[ -n "$(docker ps -qa -f name=rnode)" ]]; then
+	logcmd docker inspect rnode >$out_dir/docker_inspect.json
+else
+	echo "Container 'rnode' does not exist" >&2
+fi
