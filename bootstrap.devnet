@@ -8,5 +8,6 @@ SETUP_SCRIPT_URL=https://raw.githubusercontent.com/rchain/rchain-testnet-node/ma
 PROFILE=devnet
 
 if [[ -z "$SETUP_SCRIPT_RUNNING" ]]; then
+	ln -sf $REPO_DIR.profile $REPO_DIR/bootstrap${PROFILE:+.$PROFILE}
 	source <(curl -fsSL "$SETUP_SCRIPT_URL")
 fi
