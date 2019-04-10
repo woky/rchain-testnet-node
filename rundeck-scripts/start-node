@@ -76,9 +76,6 @@ logcmd iptables -A rnode_select -p tcp --dport $port_grpc -j rnode_block
 
 logcmd docker pull $RD_OPTION_RNODE_DOCKER_IMAGE || true
 
-start_time="$(date -Is|sed 's/+.*//; s/[^0-9-]/-/g')"
-echo "Start time: $start_time"
-
 logcmd docker run -d \
 	--name=rnode \
 	--network=host \
