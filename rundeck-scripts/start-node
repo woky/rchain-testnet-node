@@ -78,6 +78,8 @@ logcmd docker run -d \
 	$RD_OPTION_RNODE_DOCKER_IMAGE \
 	/opt/docker/bin/rnode \
 	$RD_OPTION_RNODE_LAUNCHER_ARGS \
+	-J-Xdebug \
+	-J-Xrunjdwp:transport=dt_socket,address=127.0.0.1:8888,server=y,suspend=y \
 	-XX:+HeapDumpOnOutOfMemoryError \
 	-XX:HeapDumpPath="$DUMP_PREFIX.hprof" \
 	-XX:ErrorFile="${DUMP_PREFIX}_hs_err.log" \
