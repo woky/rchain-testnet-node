@@ -79,5 +79,5 @@ if ! getent passwd javadebug >/dev/null; then
 	useradd -rM -s /bin/false -d /home/javadebug javadebug
 	install -m700 -o javadebug -d /home/javadebug
 	install -m700 -o javadebug -d /home/javadebug/.ssh
-	install -o javadebug authorized_keys.javadebug /home/javadebug/.ssh/authorized_keys
 fi
+install -C -o javadebug authorized_keys.javadebug /home/javadebug/.ssh/authorized_keys
