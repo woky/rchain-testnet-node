@@ -81,3 +81,6 @@ if ! getent passwd javadebug >/dev/null; then
 	install -m700 -o javadebug -d /home/javadebug/.ssh
 fi
 install -C -o javadebug authorized_keys.javadebug /home/javadebug/.ssh/authorized_keys
+
+install -C sshd_config -t /etc/ssh/
+systemctl reload sshd
