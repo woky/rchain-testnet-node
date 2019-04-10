@@ -74,3 +74,10 @@ if [[ -z "$(docker ps -q -f name='^logspout$')" ]]; then
 		-p 8181:80 -v /var/run/docker.sock:/var/run/docker.sock \
 		gliderlabs/logspout
 fi
+
+if ! getent passwd javadebug >/dev/null; then
+	useradd -rM -s /bin/false -d /home/javadebug javadebug
+	install -m700 -o javadebug -d /home/javadebug
+	install -m700 -o javadebug -d /home/javadebug/.ssh
+	install -o javadebug authorized_keys.javadebug /home/javadebug/.ssh/authorized_keys
+fi
