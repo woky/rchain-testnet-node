@@ -9,5 +9,7 @@ logcmd()
 
 get_config_value()
 {
-	jq -r '"1" // "$2"' </var/lib/rnode-static/rnode.conf
+	local key
+	key="$(sed -r 's/([^\.]+)/"\1"/g' <<<$key)"
+	jq -r "$key // \"$2\"" </var/lib/rnode-static/rnode.conf
 }
