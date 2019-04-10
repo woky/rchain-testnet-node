@@ -6,3 +6,8 @@ logcmd()
 	echo ">> $@" >&2
 	eval "$@"
 }
+
+get_config_value()
+{
+	jq -r '"1" // "$2"' </var/lib/rnode-static/rnode.conf
+}
