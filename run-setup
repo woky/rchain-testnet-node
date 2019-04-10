@@ -67,7 +67,7 @@ install -C -m644 mnt-heapdumps.mount -t /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable --now mnt-heapdumps.mount
 
-if [[ -z "$(docker ps -q -f name=logspout)" ]]; then
+if [[ -z "$(docker ps -q -f name='^logspout$')" ]]; then
 	docker rm logspout || true
 	docker pull gliderlabs/logspout
 	docker run -d --restart=unless-stopped --name=logspout \
