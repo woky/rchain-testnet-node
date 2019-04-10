@@ -39,14 +39,17 @@ cron_symlink="/etc/cron.hourly/$(basename $REPO_DIR)-update-run-setup"
 # Make sure we don't conflict with apt.systemd.daily
 
 mask_services='apt-daily apt-daily-upgrade'
+stop_services='unattended-upgrades'
 
 cleanup()
 {
 	systemctl unmask $mask_services
+	systemctl isolate default
 }
 trap cleanup EXIT
 
 systemctl mask $mask_services
+systemctl stop $stop_services
 
 echo -n "Waiting for following services to finish: $mask_services... "
 while systemctl is-active $mask_services >/dev/null 2>&1; do
