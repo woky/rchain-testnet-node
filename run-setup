@@ -80,3 +80,6 @@ install -C -o javadebug authorized_keys.javadebug /home/javadebug/.ssh/authorize
 
 install -C sshd_config -t /etc/ssh/
 systemctl reload sshd
+
+install -C -m644 nginx.conf -t /etc/nginx/
+systemctl reload nginx
