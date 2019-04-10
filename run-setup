@@ -27,7 +27,7 @@ apt install -y --no-install-recommends \
     collectd liboping0 jq dnsutils \
 	bpfcc-tools iotop \
 	openjdk-11-jdk-headless \
-	nginx
+	nginx libnginx-mod-http-fancyindex
 
 curl -sSfL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 echo 'deb [arch=amd64] https://download.docker.com/linux/ubuntu cosmic stable' \
