@@ -9,7 +9,7 @@ resource "google_compute_firewall" "fw_public_node" {
   target_tags = [ "${var.resources_name}-node-public" ]
   allow {
     protocol = "tcp"
-    ports = [ 50400, 40403, 50404 ]
+    ports = [ 50400, 40403, 50404, 18080 ]
   }
 }
 
