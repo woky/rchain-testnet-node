@@ -49,7 +49,13 @@ logcmd ln -sf /var/lib/rnode-static/node.*.pem /var/lib/rnode/
 bootstrap_url="$(get_config_value .rnode.server.bootstrap)"
 bootstrap_hostname="$(sed 's/.*@//; s/?.*//' <<<"$bootstrap_url")"
 bootstrap_ip="$(dig +short $bootstrap_hostname A | tail -1)"
-echo "Bootstrap IP address: $bootstrap_ip"
+
+if [[ -n "$bootstrap_ip" ]]; then
+	echo "Bootstrap IP address: $bootstrap_ip"
+else
+	echo "Failed to get/resolve bootstrap IP" >&2
+	exit 1
+fi
 
 port_protocol="$(get_config_value .rnode.server.port 40400)"
 port_kademlia="$(get_config_value .rnode.server.port-kademlia 40404)"
