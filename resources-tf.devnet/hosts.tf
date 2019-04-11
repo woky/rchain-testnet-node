@@ -28,9 +28,7 @@ resource "google_compute_instance" "node_host" {
   }
 
   tags = [
-    "${var.resources_name}-node-public",
-    "${var.resources_name}-node-rpc",
-    "${var.resources_name}-node-p2p",
+    "${var.resources_name}-node",
     "collectd-out",
     "elasticsearch-out",
     "logstash-tcp-out",
