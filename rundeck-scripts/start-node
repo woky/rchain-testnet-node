@@ -99,6 +99,7 @@ logcmd docker pull $RD_OPTION_RNODE_DOCKER_IMAGE || true
 logcmd docker run -d \
 	--name=rnode \
 	--network=host \
+	--restart=unless-stopped \
 	--env-file=/var/lib/rnode-static/environment.docker \
 	-v /var/lib/rnode:/var/lib/rnode \
 	-v /mnt/heapdumps:/mnt/heapdumps \
