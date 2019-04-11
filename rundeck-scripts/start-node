@@ -55,24 +55,38 @@ port_protocol="$(get_config_value .rnode.server.port 40400)"
 port_kademlia="$(get_config_value .rnode.server.port-kademlia 40404)"
 port_grpc="$(get_config_value .rnode.grpc.port-external 40401)"
 
-if ! iptables -L rnode_select >/dev/null; then
-	logcmd iptables -N rnode_select
-	logcmd iptables -I INPUT 1 -p tcp -j rnode_select
+if ! iptables -L rnode_iblock >/dev/null 2>&1; then
+	logcmd iptables -N rnode_iblock
 fi
-if ! iptables -L rnode_block >/dev/null; then
-	logcmd iptables -N rnode_block
+if ! iptables -L rnode_oblock >/dev/null 2>&1; then
+	logcmd iptables -N rnode_oblock
+fi
+if ! iptables -L rnode_isel >/dev/null 2>&1; then
+	logcmd iptables -N rnode_isel
+	logcmd iptables -I INPUT 1 -j rnode_isel
+fi
+if ! iptables -L rnode_osel >/dev/null 2>&1; then
+	logcmd iptables -N rnode_osel
+	logcmd iptables -I OUTPUT 1 -j rnode_osel
 fi
 
-logcmd iptables -F rnode_block
-logcmd iptables -A rnode_block -i lo -j RETURN
-logcmd iptables -A rnode_block -s $bootstrap_ip -j RETURN
-logcmd iptables -A rnode_block -p tcp -m conntrack --ctstate ESTABLISHED -j RETURN
-logcmd iptables -A rnode_block -p tcp -j REJECT --reject-with tcp-reset
+logcmd iptables -F rnode_iblock
+logcmd iptables -A rnode_iblock -i lo -j RETURN
+logcmd iptables -A rnode_iblock -p tcp --dport $port_protocol -s $bootstrap_ip -j RETURN
+logcmd iptables -A rnode_iblock -j REJECT
 
-logcmd iptables -F rnode_select
-logcmd iptables -A rnode_select -p tcp --dport $port_protocol -j rnode_block
-logcmd iptables -A rnode_select -p tcp --dport $port_kademlia -j rnode_block
-logcmd iptables -A rnode_select -p tcp --dport $port_grpc -j rnode_block
+logcmd iptables -F rnode_oblock
+logcmd iptables -A rnode_oblock -o lo -j RETURN
+logcmd iptables -A rnode_oblock -j REJECT
+
+logcmd iptables -F rnode_isel
+logcmd iptables -A rnode_isel -p tcp --dport $port_protocol -j rnode_iblock
+logcmd iptables -A rnode_isel -p tcp --dport $port_kademlia -j rnode_iblock
+logcmd iptables -A rnode_isel -p tcp --dport $port_grpc -j rnode_iblock
+
+logcmd iptables -F rnode_osel
+logcmd iptables -A rnode_osel -p tcp --dport $port_kademlia -j rnode_oblock
+logcmd iptables -A rnode_osel -p tcp --dport 40404 -j rnode_oblock
 
 logcmd docker pull $RD_OPTION_RNODE_DOCKER_IMAGE || true
 
@@ -127,8 +141,8 @@ while (( i )); do
 	: $((i--))
 done
 
-logcmd iptables -F rnode_select
-logcmd iptables -F rnode_block
+logcmd iptables -F rnode_isel
+logcmd iptables -F rnode_osel
 
 if (( i == 0 )); then
 	echo "Did not find approved block" >&2
