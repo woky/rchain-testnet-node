@@ -6,10 +6,10 @@ resource "google_compute_firewall" "fw_public_node" {
   name = "${var.resources_name}-node-public"
   network = "${data.google_compute_network.default_network.self_link}"
   priority = 530
-  target_tags = [ "${var.resources_name}-node-public" ]
+  target_tags = [ "${var.resources_name}-node" ]
   allow {
     protocol = "tcp"
-    ports = [ 40403, 18080 ]
+    ports = [ 22, 40403, 18080 ]
   }
 }
 
@@ -17,7 +17,7 @@ resource "google_compute_firewall" "fw_public_node_rpc" {
   name = "${var.resources_name}-node-rpc"
   network = "${data.google_compute_network.default_network.self_link}"
   priority = 540
-  target_tags = [ "${var.resources_name}-node-rpc" ]
+  target_tags = [ "${var.resources_name}-node" ]
   allow {
     protocol = "tcp"
     ports = [ 40401 ]
@@ -29,9 +29,29 @@ resource "google_compute_firewall" "fw_node_p2p" {
   network = "${data.google_compute_network.default_network.self_link}"
   priority = 550
   source_ranges = [ "0.0.0.0/0" ]
-  target_tags = [ "${var.resources_name}-node-p2p" ]
+  target_tags = [ "${var.resources_name}-node" ]
   allow {
     protocol = "tcp"
     ports = [ 40400, 40404 ]
+  }
+}
+
+resource "google_compute_firewall" "fw_node_deny_tcp" {
+  name = "${var.resources_name}-node-deny-tcp"
+  network = "${data.google_compute_network.default_network.self_link}"
+  priority = 5010
+  target_tags = [ "${var.resources_name}-node" ]
+  deny {
+    protocol = "tcp"
+  }
+}
+
+resource "google_compute_firewall" "fw_node_deny_udp" {
+  name = "${var.resources_name}-node-deny-udp"
+  network = "${data.google_compute_network.default_network.self_link}"
+  priority = 5020
+  target_tags = [ "${var.resources_name}-node" ]
+  deny {
+    protocol = "udp"
   }
 }
