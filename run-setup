@@ -83,3 +83,6 @@ systemctl reload sshd
 
 install -C -m644 nginx/* -t /etc/nginx/
 systemctl reload nginx
+
+systemctl link $PWD/autopropose.service $PWD/autopropose.timer
+systemctl daemon-reload
