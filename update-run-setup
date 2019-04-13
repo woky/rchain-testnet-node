@@ -67,7 +67,7 @@ apt install -yq --no-install-recommends git git-crypt cron
 # Clone or update main Git repositoriy
 
 if [[ ! -d $REPO_DIR ]]; then
-	git clone -n $REPO_URL $REPO_DIR
+	git clone -n $REPO_URL -b "${REPO_BRANCH:-master}" $REPO_DIR
 fi
 
 cd $REPO_DIR
