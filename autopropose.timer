@@ -1,0 +1,10 @@
+[Unit]
+Description=RNode Periodic Propose
+
+[Timer]
+OnUnitInactiveSec=1min
+AccuracySec=1
+RandomizedDelaySec=30
+
+[Install]
+WantedBy=multi-user.target

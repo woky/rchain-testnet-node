@@ -1,0 +1,7 @@
+[Unit]
+Description=RNode Single Propose
+
+[Service]
+ExecStart=/opt/rchain-testnet-node/rundeck-scripts/propose
+Type=oneshot
+TimeoutStartSec=10min
