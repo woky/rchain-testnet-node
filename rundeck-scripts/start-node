@@ -157,6 +157,8 @@ if (( i == 0 )); then
 	exit 1
 fi
 
-logcmd systemctl enable --now autopropose.timer
+if [[ "$RD_OPTION_AUTOPROPOSE" != no ]]; then
+	logcmd systemctl enable --now autopropose.timer
+fi
 
 echo Finished
