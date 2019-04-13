@@ -5,6 +5,3 @@ Description=RNode Periodic Propose
 OnUnitInactiveSec=1min
 AccuracySec=1
 RandomizedDelaySec=30
-
-[Install]
-WantedBy=multi-user.target
