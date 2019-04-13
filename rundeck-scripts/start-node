@@ -157,4 +157,6 @@ if (( i == 0 )); then
 	exit 1
 fi
 
+logcmd systemctl enable --now autopropose.timer
+
 echo Finished
