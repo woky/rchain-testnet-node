@@ -21,3 +21,13 @@ get_config_value()
 	key="$(sed -r 's/([^\.]+)/"\1"/g' <<<$1)"
 	jq -r "$key // \"$2\"" </var/lib/rnode-static/rnode.conf
 }
+
+parse_rnode_config()
+{
+	parse_rnode_config_file
+}
+
+parse_rnode_config_file()
+{
+	eval "$(json2env </var/lib/rnode-static/rnode.conf)"
+}

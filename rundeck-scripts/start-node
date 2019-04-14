@@ -46,8 +46,9 @@ logcmd 'cat /var/lib/rnode-static/bonds-*.txt >/var/lib/rnode/genesis/bonds.txt'
 logcmd ln -sf /var/lib/rnode-static/wallets.txt /var/lib/rnode/genesis/
 logcmd ln -sf /var/lib/rnode-static/node.*.pem /var/lib/rnode/
 
-bootstrap_url="$(get_config_value .rnode.server.bootstrap)"
-bootstrap_hostname="$(sed 's/.*@//; s/?.*//' <<<"$bootstrap_url")"
+parse_rnode_config
+
+bootstrap_hostname="$(sed 's/.*@//; s/?.*//' <<<"$rnode_server_bootstrap")"
 bootstrap_ip="$(dig +short $bootstrap_hostname A | tail -1)"
 
 if [[ -n "$bootstrap_ip" ]]; then
@@ -56,10 +57,6 @@ else
 	echo "Failed to get/resolve bootstrap IP" >&2
 	exit 1
 fi
-
-port_protocol="$(get_config_value .rnode.server.port 40400)"
-port_kademlia="$(get_config_value .rnode.server.port-kademlia 40404)"
-port_grpc="$(get_config_value .rnode.grpc.port-external 40401)"
 
 if ! iptables -L rnode_iblock >/dev/null 2>&1; then
 	logcmd iptables -N rnode_iblock
@@ -78,7 +75,7 @@ fi
 
 logcmd iptables -F rnode_iblock
 logcmd iptables -A rnode_iblock -i lo -j RETURN
-logcmd iptables -A rnode_iblock -p tcp --dport $port_protocol -s $bootstrap_ip -j RETURN
+logcmd iptables -A rnode_iblock -p tcp --dport $rnode_server_port -s $bootstrap_ip -j RETURN
 logcmd iptables -A rnode_iblock -j REJECT
 
 logcmd iptables -F rnode_oblock
@@ -86,12 +83,12 @@ logcmd iptables -A rnode_oblock -o lo -j RETURN
 logcmd iptables -A rnode_oblock -j REJECT
 
 logcmd iptables -F rnode_isel
-logcmd iptables -A rnode_isel -p tcp --dport $port_protocol -j rnode_iblock
-logcmd iptables -A rnode_isel -p tcp --dport $port_kademlia -j rnode_iblock
-logcmd iptables -A rnode_isel -p tcp --dport $port_grpc -j rnode_iblock
+logcmd iptables -A rnode_isel -p tcp --dport $rnode_server_port -j rnode_iblock
+logcmd iptables -A rnode_isel -p tcp --dport $rnode_server_port_kademlia -j rnode_iblock
+logcmd iptables -A rnode_isel -p tcp --dport $rnode_grpc_port_external -j rnode_iblock
 
 logcmd iptables -F rnode_osel
-logcmd iptables -A rnode_osel -p tcp --dport $port_kademlia -j rnode_oblock
+logcmd iptables -A rnode_osel -p tcp --dport $rnode_server_port_kademlia -j rnode_oblock
 logcmd iptables -A rnode_osel -p tcp --dport 40404 -j rnode_oblock
 
 logcmd docker pull $RD_OPTION_RNODE_DOCKER_IMAGE || true
