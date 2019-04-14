@@ -32,7 +32,7 @@ apt install -y --no-install-recommends \
 	bpfcc-tools iotop \
 	openjdk-11-jdk-headless \
 	nginx libnginx-mod-http-fancyindex \
-	coreutils
+	coreutils tree
 
 curl -sSfL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 echo 'deb [arch=amd64] https://download.docker.com/linux/ubuntu cosmic stable' \
