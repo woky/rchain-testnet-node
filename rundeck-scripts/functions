@@ -24,6 +24,12 @@ get_config_value()
 
 parse_rnode_config()
 {
+	rnode_grpc_port_external=40401
+	rnode_casper_genesis_validator=false
+	rnode_server_port_kademlia=40404
+	rnode_server_port=40400
+	rnode_server_standalone=false
+
 	parse_rnode_config_file
 	parse_rnode_launcher_args $RD_OPTION_RNODE_LAUNCHER_ARGS
 	parse_rnode_run_args $RD_OPTION_RNODE_RUN_ARGS
