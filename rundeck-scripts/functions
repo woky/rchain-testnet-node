@@ -31,6 +31,9 @@ parse_rnode_config()
 	rnode_server_port=40400
 	rnode_server_standalone=false
 
+	rnode_launcher_other_args=
+	rnode_run_other_args=
+
 	parse_rnode_config_file
 	parse_rnode_launcher_args $RD_OPTION_RNODE_LAUNCHER_ARGS
 	parse_rnode_run_args $RD_OPTION_RNODE_RUN_ARGS
@@ -46,6 +49,7 @@ parse_rnode_launcher_args()
 	while (( $# )); do
 		case "$1" in
 			-g|--grpc-port) rnode_grpc_port_external="$2"; shift ;;
+			*) rnode_launcher_other_args+=" ${1@Q}" ;;
 		esac
 		shift
 	done
@@ -61,6 +65,7 @@ parse_rnode_run_args()
 			-p|--port) rnode_server_port="$2"; shift ;;
 			-r|--required-sigs) rnode_casper_required_signatures="$2"; shift ;;
 			-s|--standalone) rnode_server_standalone=true ;;
+			*) rnode_run_other_args+=" ${1@Q}" ;;
 		esac
 		shift
 	done
