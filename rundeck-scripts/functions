@@ -5,7 +5,7 @@ export PATH="$(dirname ${BASH_SOURCE[0]}):$PATH"
 if [[ $RD_OPTION_DUMP_TAG ]]; then
 	TAG="$(hostname -f)-$(tr -C a-ZA-Z0-9-_. _ <<<"$RD_OPTION_DUMP_TAG")"
 else
-	TAG="$(hostname -f)-$(date -Im | sed 's/+.*//; s/[^0-9-]/-/g')}"
+	TAG="$(hostname -f)-$(date -Im | sed 's/+.*//; s/[^0-9-]/-/g')"
 fi
 DUMP_PREFIX="/mnt/heapdumps/$TAG"
 
