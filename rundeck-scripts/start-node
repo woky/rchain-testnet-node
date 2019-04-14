@@ -126,7 +126,8 @@ i=6
 sleep_time=5
 echo "Waiting $((i*sleep_time))s for RNode to start"
 while (( i )); do
-	if [[ -n "$(docker ps -q -f name=rnode)" ]]; then
+	container_id="$(docker ps -q -f name=rnode)"
+	if [[ -n "$container_id" ]]; then
 		echo "RNode is running"
 		break
 	fi
@@ -138,11 +139,12 @@ i=60
 sleep_time=10
 echo "Waiting $((i*sleep_time))s for approved block"
 while (( i )); do
-	if [[ -z "$(docker ps -q -f name=rnode)" ]]; then
+	if [[ -z "$(docker ps -q $container_id)" ]]; then
 		echo "RNode is not running" >&2
 		exit 1
 	fi
-	height="$(docker exec rnode ./bin/rnode show-blocks | sed -n '/^count: /{s///;p;q}')" || true
+	height="$(docker exec $container_id ./bin/rnode show-blocks |\
+		sed -n '/^count: /{s///;p;q}')" || true
 	if (( height )); then
 		echo "Found approved block"
 		break
