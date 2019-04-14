@@ -26,6 +26,7 @@ parse_rnode_config()
 {
 	rnode_grpc_port_external=40401
 	rnode_casper_genesis_validator=false
+	rnode_casper_required_signatures=0
 	rnode_server_port_kademlia=40404
 	rnode_server_port=40400
 	rnode_server_standalone=false
@@ -58,6 +59,7 @@ parse_rnode_run_args()
 			-g|--genesis-validator) rnode_casper_genesis_validator=true ;;
 			--kademlia-port) rnode_server_port_kademlia="$2"; shift ;;
 			-p|--port) rnode_server_port="$2"; shift ;;
+			-r|--required-sigs) rnode_casper_required_signatures="$2"; shift ;;
 			-s|--standalone) rnode_server_standalone=true ;;
 		esac
 		shift
