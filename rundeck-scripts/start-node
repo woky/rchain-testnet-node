@@ -53,7 +53,7 @@ if [[ $rnode_casper_required_signatures -gt 0 && \
 	rnode_casper_genesis_validator=true
 fi
 
-bootstrap_hostname="$(sed 's/.*@//; s/?.*//' <<<"$rnode_server_bootstrap")"
+eval "$(parse-node-url $rnode_server_bootstrap bootstrap_)"
 bootstrap_ip="$(dig +short $bootstrap_hostname A | tail -1)"
 
 if [[ -n "$bootstrap_ip" ]]; then
@@ -93,8 +93,7 @@ logcmd iptables -A rnode_isel -p tcp --dport $rnode_server_port_kademlia -j rnod
 logcmd iptables -A rnode_isel -p tcp --dport $rnode_grpc_port_external -j rnode_iblock
 
 logcmd iptables -F rnode_osel
-logcmd iptables -A rnode_osel -p tcp --dport $rnode_server_port_kademlia -j rnode_oblock
-logcmd iptables -A rnode_osel -p tcp --dport 40404 -j rnode_oblock
+logcmd iptables -A rnode_osel -p tcp --dport $bootstrap_port_kademlia -j rnode_oblock
 
 logcmd docker pull $RD_OPTION_RNODE_DOCKER_IMAGE || true
 
