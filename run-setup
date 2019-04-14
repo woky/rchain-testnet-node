@@ -1,10 +1,14 @@
 #!/bin/bash
 set -e -o pipefail
 
-while [[ "$(hostname -f)" == *.internal ]]; do
+while :; do
+	_hostname="$(hostname -f)"
+	if [[ $_hostname == *.* && $_hostname != *.internal ]]; then
+		break
+	fi
 	systemctl restart systemd-networkd
 	echo "Waiting for FQDN..."
-	sleep 5
+	sleep 10
 done
 
 # Due to the issue https://github.com/oetiker/rrdtool-1.x/issues/794
