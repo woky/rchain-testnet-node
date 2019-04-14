@@ -135,10 +135,10 @@ while (( i )); do
 	: $((i--))
 done
 
-i=60
+wait_time_left="${RD_OPTION_WAIT_TIME:-600}"
 sleep_time=10
-echo "Waiting $((i*sleep_time))s for approved block"
-while (( i )); do
+echo "Waiting ${wait_time_left}s for approved block"
+while (( wait_time_left > 0 )); do
 	if [[ -z "$(docker ps -q -f ID=$container_id)" ]]; then
 		echo "RNode is not running" >&2
 		exit 1
@@ -150,7 +150,7 @@ while (( i )); do
 		break
 	fi
 	sleep $sleep_time
-	: $((i--))
+	: $(( wait_time_left -= sleep_time ))
 done
 
 logcmd iptables -F rnode_isel
