@@ -81,19 +81,18 @@ fi
 logcmd iptables -F rnode_iblock
 logcmd iptables -A rnode_iblock -i lo -j RETURN
 logcmd iptables -A rnode_iblock -p tcp --dport $rnode_server_port -s $bootstrap_ip -j RETURN
-logcmd iptables -A rnode_iblock -j REJECT
+logcmd iptables -A rnode_iblock -p tcp --dport $rnode_server_port -j REJECT
+logcmd iptables -A rnode_iblock -p tcp --dport $rnode_server_port_kademlia -j REJECT
+logcmd iptables -A rnode_iblock -p tcp --dport $rnode_grpc_port_external -j REJECT
 
 logcmd iptables -F rnode_oblock
 logcmd iptables -A rnode_oblock -o lo -j RETURN
-logcmd iptables -A rnode_oblock -j REJECT
+logcmd iptables -A rnode_oblock -p tcp --dport $bootstrap_port_kademlia -j REJECT
 
 logcmd iptables -F rnode_isel
-logcmd iptables -A rnode_isel -p tcp --dport $rnode_server_port -j rnode_iblock
-logcmd iptables -A rnode_isel -p tcp --dport $rnode_server_port_kademlia -j rnode_iblock
-logcmd iptables -A rnode_isel -p tcp --dport $rnode_grpc_port_external -j rnode_iblock
-
+logcmd iptables -A rnode_isel -j rnode_iblock
 logcmd iptables -F rnode_osel
-logcmd iptables -A rnode_osel -p tcp --dport $bootstrap_port_kademlia -j rnode_oblock
+logcmd iptables -A rnode_osel -j rnode_oblock
 
 logcmd docker pull $RD_OPTION_RNODE_DOCKER_IMAGE || true
 
