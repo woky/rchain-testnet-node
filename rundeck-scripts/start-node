@@ -53,7 +53,7 @@ if [[ $rnode_casper_required_signatures -gt 0 && \
 	rnode_casper_genesis_validator=true
 fi
 
-eval "$(parse-node-url $rnode_server_bootstrap bootstrap_)"
+eval "$(parse-node-url "$rnode_server_bootstrap" bootstrap_)"
 bootstrap_ip="$(dig +short $bootstrap_hostname A | tail -1)"
 
 if [[ -n "$bootstrap_ip" ]]; then
