@@ -80,14 +80,14 @@ fi
 
 logcmd iptables -F rnode_iblock
 logcmd iptables -A rnode_iblock -i lo -j RETURN
-logcmd iptables -A rnode_iblock -p tcp --dport $rnode_server_port -s $bootstrap_ip -j RETURN
-logcmd iptables -A rnode_iblock -p tcp --dport $rnode_server_port -j REJECT
-logcmd iptables -A rnode_iblock -p tcp --dport $rnode_server_port_kademlia -j REJECT
-logcmd iptables -A rnode_iblock -p tcp --dport $rnode_grpc_port_external -j REJECT
+logcmd iptables -A rnode_iblock -p tcp --dport "$rnode_server_port" -s "$bootstrap_ip" -j RETURN
+logcmd iptables -A rnode_iblock -p tcp --dport "$rnode_server_port" -j REJECT
+logcmd iptables -A rnode_iblock -p tcp --dport "$rnode_server_port_kademlia" -j REJECT
+logcmd iptables -A rnode_iblock -p tcp --dport "$rnode_grpc_port_external" -j REJECT
 
 logcmd iptables -F rnode_oblock
 logcmd iptables -A rnode_oblock -o lo -j RETURN
-logcmd iptables -A rnode_oblock -p tcp --dport $bootstrap_port_kademlia -j REJECT
+logcmd iptables -A rnode_oblock -p tcp --dport "$bootstrap_port_kademlia" -j REJECT
 
 logcmd iptables -F rnode_isel
 logcmd iptables -A rnode_isel -j rnode_iblock
