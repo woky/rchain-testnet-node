@@ -48,6 +48,11 @@ logcmd ln -sf /var/lib/rnode-static/node.*.pem /var/lib/rnode/
 
 parse_rnode_config
 
+if [[ $rnode_casper_required_signatures -gt 0 && \
+	$rnode_server_standalone != true ]]; then
+	rnode_casper_genesis_validator=true
+fi
+
 bootstrap_hostname="$(sed 's/.*@//; s/?.*//' <<<"$rnode_server_bootstrap")"
 bootstrap_ip="$(dig +short $bootstrap_hostname A | tail -1)"
 
