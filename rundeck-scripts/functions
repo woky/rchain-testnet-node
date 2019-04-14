@@ -73,13 +73,13 @@ parse_rnode_run_args()
 
 print_cli_param()
 {
-	echo -n " --$1 ${!2@Q}"
+	echo -n " $1 ${!2@Q}"
 }
 
 print_cli_flag()
 {
 	if [[ "${!2}" == true ]]; then
-		echo -n " --$1"
+		echo -n " $1"
 	fi
 }
 
