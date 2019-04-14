@@ -25,9 +25,35 @@ get_config_value()
 parse_rnode_config()
 {
 	parse_rnode_config_file
+	parse_rnode_launcher_args $RD_OPTION_RNODE_LAUNCHER_ARGS
+	parse_rnode_run_args $RD_OPTION_RNODE_RUN_ARGS
 }
 
 parse_rnode_config_file()
 {
 	eval "$(json2env </var/lib/rnode-static/rnode.conf)"
+}
+
+parse_rnode_launcher_args()
+{
+	while (( $# )); do
+		case "$1" in
+			-g|--grpc-port) rnode_grpc_port_external="$2"; shift ;;
+		esac
+		shift
+	done
+}
+
+parse_rnode_run_args()
+{
+	while (( $# )); do
+		case "$1" in
+			-b|--bootstrap) rnode_server_bootstrap="$2"; shift ;;
+			-g|--genesis-validator) rnode_casper_genesis_validator=true ;;
+			--kademlia-port) rnode_server_port_kademlia="$2"; shift ;;
+			-p|--port) rnode_server_port="$2"; shift ;;
+			-s|--standalone) rnode_server_standalone=true ;;
+		esac
+		shift
+	done
 }
