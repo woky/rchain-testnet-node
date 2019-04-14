@@ -1,5 +1,7 @@
 # vim:ft=sh
 
+export PATH="$(dirname ${BASH_SOURCE[0]}):$PATH"
+
 if [[ $RD_OPTION_DUMP_TAG ]]; then
 	TAG="$(hostname -f)-$(tr -C a-ZA-Z0-9-_. _ <<<"$RD_OPTION_DUMP_TAG")"
 else
