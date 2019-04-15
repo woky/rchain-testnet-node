@@ -156,7 +156,7 @@ done
 logcmd iptables -F rnode_isel
 logcmd iptables -F rnode_osel
 
-if (( i == 0 )); then
+if (( sleep_time <= 0 )); then
 	echo "Did not find approved block" >&2
 	exit 1
 fi
