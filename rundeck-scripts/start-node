@@ -153,12 +153,12 @@ while (( wait_time_left > 0 )); do
 	: $(( wait_time_left -= sleep_time ))
 done
 
-logcmd iptables -F rnode_isel
-logcmd iptables -F rnode_osel
-
 if (( sleep_time <= 0 )); then
 	echo "Did not find approved block" >&2
 	exit 1
 fi
+
+logcmd iptables -F rnode_isel
+logcmd iptables -F rnode_osel
 
 echo Finished
