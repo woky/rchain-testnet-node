@@ -153,7 +153,7 @@ while (( wait_time_left > 0 )); do
 	: $(( wait_time_left -= sleep_time ))
 done
 
-if (( sleep_time <= 0 )); then
+if (( wait_time_left <= 0 )); then
 	echo "Did not find approved block" >&2
 	exit 1
 fi
