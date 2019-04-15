@@ -48,8 +48,7 @@ logcmd ln -sf /var/lib/rnode-static/node.*.pem /var/lib/rnode/
 
 parse_rnode_config
 
-if [[ $rnode_casper_required_signatures -gt 0 && \
-	$rnode_server_standalone != true ]]; then
+if [[ $rnode_casper_required_signatures -gt 0 && $rnode_server_standalone != true ]]; then
 	rnode_casper_genesis_validator=true
 fi
 
@@ -81,9 +80,12 @@ fi
 logcmd iptables -F rnode_iblock
 logcmd iptables -A rnode_iblock -i lo -j RETURN
 logcmd iptables -A rnode_iblock -p tcp --dport "$rnode_server_port" -s "$bootstrap_ip" -j RETURN
-logcmd iptables -A rnode_iblock -p tcp --dport "$rnode_server_port" -j REJECT
 logcmd iptables -A rnode_iblock -p tcp --dport "$rnode_server_port_kademlia" -j REJECT
 logcmd iptables -A rnode_iblock -p tcp --dport "$rnode_grpc_port_external" -j REJECT
+
+if [[ $rnode_server_standalone != true || $rnode_casper_required_signatures -eq 0 ]]; then
+	logcmd iptables -A rnode_iblock -p tcp --dport "$rnode_server_port" -j REJECT
+fi
 
 logcmd iptables -F rnode_oblock
 logcmd iptables -A rnode_oblock -o lo -j RETURN
