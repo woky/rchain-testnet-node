@@ -3,7 +3,7 @@
 export PATH="$(dirname ${BASH_SOURCE[0]}):$PATH"
 
 if [[ $RD_OPTION_DUMP_TAG ]]; then
-	TAG="$(hostname -f)-$(tr -C a-zA-Z0-9-_. _ <<<"$RD_OPTION_DUMP_TAG")"
+	TAG="$(hostname -f)-$(echo -n "$RD_OPTION_DUMP_TAG" | tr -C a-zA-Z0-9-_. _)"
 else
 	TAG="$(hostname -f)-$(date -Im | sed 's/+.*//; s/[^0-9-]/-/g')"
 fi
