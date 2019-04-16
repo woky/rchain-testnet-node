@@ -36,21 +36,14 @@ resource "google_compute_firewall" "fw_node_p2p" {
   }
 }
 
-resource "google_compute_firewall" "fw_node_deny_tcp" {
-  name = "${var.resources_name}-node-deny-tcp"
+resource "google_compute_firewall" "fw_node_deny" {
+  name = "${var.resources_name}-node-deny"
   network = "${data.google_compute_network.default_network.self_link}"
   priority = 5010
   target_tags = [ "${var.resources_name}-node" ]
   deny {
     protocol = "tcp"
   }
-}
-
-resource "google_compute_firewall" "fw_node_deny_udp" {
-  name = "${var.resources_name}-node-deny-udp"
-  network = "${data.google_compute_network.default_network.self_link}"
-  priority = 5020
-  target_tags = [ "${var.resources_name}-node" ]
   deny {
     protocol = "udp"
   }
