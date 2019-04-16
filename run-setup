@@ -58,7 +58,8 @@ if ! grep -Fq rundeck /root/.ssh/authorized_keys; then
 	cat rundeck-id_rsa.pub >>/root/.ssh/authorized_keys
 fi
 
-mkdir -p -m700 /var/lib/rnode-static
+mkdir -p -m710 /var/lib/rnode-static
+chgrp www-data /var/lib/rnode-static
 files_dir="node-files${PROFILE:+.$PROFILE}"
 cp -u $files_dir/$(hostname).*/* /var/lib/rnode-static/
 cp -u logback.xml $files_dir/validator-public-keys.txt /var/lib/rnode-static/
