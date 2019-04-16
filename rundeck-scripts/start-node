@@ -98,6 +98,10 @@ logcmd iptables -A rnode_osel -j rnode_oblock
 
 logcmd docker pull $RD_OPTION_RNODE_DOCKER_IMAGE || true
 
+if [[ -f /var/lib/rnode-static/local.env ]]; then
+	source /var/lib/rnode-static/local.env
+fi
+
 logcmd docker run -d \
 	--name=rnode \
 	--network=host \
