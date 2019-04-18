@@ -28,7 +28,7 @@ resource "google_compute_firewall" "fw_node_p2p" {
   name = "${var.resources_name}-node-p2p"
   network = "${data.google_compute_network.default_network.self_link}"
   priority = 550
-  source_tags = [ "${var.resources_name}-node" ]
+  source_ranges = [ "0.0.0.0/0" ]
   target_tags = [ "${var.resources_name}-node" ]
   allow {
     protocol = "tcp"
