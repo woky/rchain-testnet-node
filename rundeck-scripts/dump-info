@@ -33,7 +33,7 @@ else
 	echo "No java process is running" >&2
 fi
 
-if [[ -n "$(docker ps -qa -f name=rnode)" ]]; then
+if [[ -n "$(docker ps -qa -f name='^rnode$')" ]]; then
 	logcmd docker inspect rnode >$out_dir/docker_inspect.json
 else
 	echo "Container 'rnode' does not exist" >&2
