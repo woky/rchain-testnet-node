@@ -6,7 +6,7 @@ java_pid="$(pgrep -x java | tail -1)" || true
 
 if [[ -z "$java_pid" ]]; then
 	echo "No java process is running" >&2
-	exit 1
+	exit
 fi
 
 echo "Java process PID: $java_pid"
