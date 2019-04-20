@@ -2,12 +2,12 @@
 set -e -o pipefail
 source "$(dirname $0)/functions"
 
-if [[ -z "$RD_OPTION_CONTRACT" ]]; then
+if [[ -z "$RD_OPTION_CONTRACT" || -o "$RD_OPTION_CONTRACT" == random ]]; then
 	contract="$(docker exec rnode sh -c 'ls ./examples/*.rho' | sort -R | head -1)"
 elif [[ "$RD_OPTION_CONTRACT" =~ ^https?:// ]]; then
 	contract=/var/lib/rnode-static/rundeck-contract.rho
 	logcmd curl -fsSL -o $contract "$RD_OPTION_CONTRACT"
-elif [[ $RD_OPTION_CONTRACT != */* ]]; then
+elif [[ "$RD_OPTION_CONTRACT" != */* ]]; then
 	contract="./examples/$RD_OPTION_CONTRACT"
 else
 	contract="$RD_OPTION_CONTRACT"
