@@ -121,6 +121,7 @@ logcmd docker run -d \
 	-XX:HeapDumpPath="$DUMP_PREFIX.hprof" \
 	-XX:ErrorFile="${DUMP_PREFIX}_hs_err.log" \
 	-XX:MaxJavaStackTraceDepth=100000 \
+	-XX:NativeMemoryTracking=detail \
 	-Dlogback.configurationFile=/var/lib/rnode-static/logback.xml \
 	-p docker \
 	-c /var/lib/rnode-static/rnode.conf \
