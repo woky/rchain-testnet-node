@@ -28,7 +28,6 @@ if [[ -n "$java_pid" ]]; then
 	dump_jcmd VM.metaspace
 	dump_jcmd VM.system_properties
 	dump_jcmd VM.version
-	dump_jcmd VM.native_memory summary
 	dump_jcmd VM.native_memory detail
 else
 	echo "No java process is running" >&2
