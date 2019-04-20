@@ -3,8 +3,15 @@ set -e -o pipefail
 source "$(dirname $0)/functions"
 
 if [[ -n "$(docker ps -qa -f name=rnode)" ]]; then
-	echo "Output file: $DUMP_PREFIX.log"
-	logcmd docker logs rnode >$DUMP_PREFIX.log 2>&1
+	logcmd "docker logs rnode &>${DUMP_PREFIX}_console.log" &
 else
 	echo "Container 'rnode' does not exist" >&2
 fi
+
+if [[ -f /var/lib/rnode/rnode.log ]]; then
+	logcmd cp /var/lib/rnode/rnode.log ${DUMP_PREFIX}_debug.log &
+else
+	echo "Log file /var/lib/rnode/rnode.log does not exist" >&2
+fi
+
+wait
