@@ -2,13 +2,6 @@
 
 export PATH="$(dirname ${BASH_SOURCE[0]}):$PATH"
 
-if [[ $RD_OPTION_DUMP_TAG ]]; then
-	TAG="$(hostname -f)-$(echo -n "$RD_OPTION_DUMP_TAG" | tr -C a-zA-Z0-9-_. _)"
-else
-	TAG="$(hostname -f)-$(date -Im | sed 's/+.*//; s/[^0-9-]/-/g')"
-fi
-DUMP_PREFIX="/mnt/heapdumps/$TAG"
-
 logcmd()
 {
 	echo ">> $@" >&2
@@ -100,4 +93,76 @@ get_rnode_run_args()
 	print_cli_param --required-sigs rnode_casper_required_signatures
 	print_cli_flag  --standalone rnode_server_standalone
 	echo
+}
+
+get_hostname_domain()
+{
+	local fqdn hostname domain
+	fqdn="$(hostname -f)"
+	if [[ "$fqdn" =~ ^([^\.]+)(\.(.+))?$ ]]; then
+		echo "${BASH_REMATCH[1]}" "${BASH_REMATCH[3]:-znodomain}"
+	else
+		echo "Invalid FQDN: '$fqdn'" >&2
+		return 1
+	fi
+}
+
+get_current_timestamp()
+{
+	date -Is | sed 's/+.*//; s/[^[:alnum:]-]/-/g'
+}
+
+get_diag_tag()
+{
+	if [[ "$RD_OPTION_DUMP_TAG" ]]; then
+		echo "$(echo -n "$RD_OPTION_DUMP_TAG" | tr -C 0-9A-Za-z-_. -)"
+	else
+		echo "$(get_current_timestamp)"
+	fi
+}
+
+local_to_remote_diag_directory_sub_path()
+{
+	local diag_dir="$1" hostname domain tag
+	[[ "$diag_dir" ]]
+	read hostname domain <<<"$(get_hostname_domain)"
+	tag="$(basename $(readlink -e "$diag_dir"))"
+	echo "$domain/$tag/$hostname"
+}
+
+local_to_remote_diag_directory_path()
+{
+	echo -n /mnt/heapdumps/
+	local_to_remote_diag_directory_sub_path "$@"
+}
+
+local_to_remote_diag_directory_url()
+{
+	local sub_path
+	sub_path="$(local_to_remote_diag_directory_sub_path "$@")"
+	echo "https://files.rchain-dev.tk/heapdumps/$sub_path/"
+}
+
+LOCAL_DIAG_ROOT=/var/lib/rnode-diag
+DIAG_DIR=$LOCAL_DIAG_ROOT/current
+
+create_diag_directory()
+{
+	local tag
+	tag="$(get_diag_tag)"
+	logcmd mkdir $LOCAL_DIAG_ROOT/$tag
+	logcmd rm -f $DIAG_DIR
+	logcmd ln -s $LOCAL_DIAG_ROOT/$tag $DIAG_DIR
+}
+
+check_diag_directory()
+{
+	if [[ ! -d $DIAG_DIR ]]; then
+		echo "Local path for diagnostic files $DIAG_DIR does not exist" >&2
+		echo "Most probably RNode was stopped and/or not yet started." >&2
+		return 1
+	else
+		echo -n "Diagnostic files will be available at "
+		local_to_remote_diag_directory_url $DIAG_DIR
+	fi
 }

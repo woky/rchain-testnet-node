@@ -5,7 +5,7 @@ After=network.target
 What=heapdumps.bucket.rchain-dev.tk
 Where=/mnt/heapdumps
 Type=gcsfuse
-Options=_netdev
+Options=_netdev,limit_ops_per_sec=-1
 
 [Install]
 WantedBy=multi-user.target

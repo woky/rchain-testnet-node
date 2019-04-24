@@ -96,6 +96,9 @@ logcmd iptables -A rnode_isel -j rnode_iblock
 logcmd iptables -F rnode_osel
 logcmd iptables -A rnode_osel -j rnode_oblock
 
+create_diag_directory
+mkdir $DIAG_DIR/jeprof
+
 logcmd docker pull $RD_OPTION_RNODE_DOCKER_IMAGE || true
 
 if [[ -f /var/lib/rnode-static/local.env ]]; then
@@ -107,9 +110,9 @@ logcmd docker run -d \
 	--network=host \
 	--env-file=/var/lib/rnode-static/environment.docker \
 	-e LD_PRELOAD=/opt/libjemalloc.so.2 \
-	-e MALLOC_CONF="prof:true,lg_prof_interval:30,prof_prefix:${DUMP_PREFIX}_jeprof.out" \
+	-e MALLOC_CONF="prof:true,lg_prof_interval:30,prof_prefix:$DIAG_DIR/jeprof/jeprof" \
 	-v /var/lib/rnode:/var/lib/rnode \
-	-v /mnt/heapdumps:/mnt/heapdumps \
+	-v $DIAG_DIR:$DIAG_DIR \
 	-v /var/lib/rnode-static:/var/lib/rnode-static:ro \
 	-v /opt/rdoctor:/opt/rdoctor:ro \
 	-v /usr/lib/x86_64-linux-gnu/libjemalloc.so.2:/opt/libjemalloc.so.2:ro \
@@ -120,8 +123,8 @@ logcmd docker run -d \
 	-J-Xdebug \
 	-J-Xrunjdwp:transport=dt_socket,address=127.0.0.1:8888,server=y,suspend=n \
 	-XX:+HeapDumpOnOutOfMemoryError \
-	-XX:HeapDumpPath="$DUMP_PREFIX.hprof" \
-	-XX:ErrorFile="${DUMP_PREFIX}_hs_err.log" \
+	-XX:HeapDumpPath=$DIAG_DIR/heapdump_OOM.hprof \
+	-XX:ErrorFile=$DIAG_DIR/hs_err.log \
 	-XX:MaxJavaStackTraceDepth=100000 \
 	-XX:NativeMemoryTracking=detail \
 	-Dlogback.configurationFile=/var/lib/rnode-static/logback.xml \
@@ -136,6 +139,7 @@ while (( i )); do
 	container_id="$(docker ps -q -f name=rnode)"
 	if [[ -n "$container_id" ]]; then
 		echo "RNode is running"
+		nohup docker logs -f $container_id &> $DIAG_DIR/console.log &
 		break
 	fi
 	sleep $sleep_time

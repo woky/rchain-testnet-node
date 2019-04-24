@@ -1,0 +1,10 @@
+#!/bin/bash
+set -e -o pipefail
+source "$(dirname $0)/functions"
+
+local_dir="$1"
+[[ -d "$local_dir" ]]
+
+remote_dir="$(local_to_remote_diag_directory_path "$local_dir")"
+logcmd mkdir -p "$remote_dir"
+logcmd rsync -qa --inplace "$local_dir/" "$remote_dir"

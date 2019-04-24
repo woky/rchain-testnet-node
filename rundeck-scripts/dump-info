@@ -2,21 +2,20 @@
 set -e -o pipefail
 source "$(dirname $0)/functions"
 
-out_dir="${DUMP_PREFIX}_info"
-echo "Output directory: $out_dir"
-logcmd mkdir -p $out_dir
+check_diag_directory
+out_dir="$DIAG_DIR/info.$(get_current_timestamp)"
+logcmd mkdir -p "$out_dir"
 
 java_pid="$(pgrep -x java | tail -1)" || true
 
 dump_jcmd()
 {
 	local out_file
-	out_file=$out_dir/jcmd_$(echo -n "$*" | tr -C a-zA-Z0-9_ _).txt
-	logcmd jcmd $java_pid "$@" >$out_file 2>&1 || true
+	out_file="$out_dir/jcmd_$(echo -n "$*" | tr -C a-zA-Z0-9_ _).txt"
+	logcmd "jcmd $java_pid $@ &>$out_file" || true
 }
 
 if [[ -n "$java_pid" ]]; then
-	echo "Java process PID: $java_pid"
 	dump_jcmd GC.class_histogram
 	dump_jcmd GC.class_stats
 	dump_jcmd GC.heap_info
@@ -34,7 +33,9 @@ else
 fi
 
 if [[ -n "$(docker ps -qa -f name='^rnode$')" ]]; then
-	logcmd docker inspect rnode >$out_dir/docker_inspect.json
+	logcmd docker inspect rnode >"$out_dir/docker_inspect.json"
 else
 	echo "Container 'rnode' does not exist" >&2
 fi
+
+sync-diag-dir

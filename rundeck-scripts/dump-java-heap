@@ -2,14 +2,13 @@
 set -e -o pipefail
 source "$(dirname $0)/functions"
 
-java_pid="$(pgrep -x java | tail -1)" || true
+check_diag_directory
+out_file="$DIAG_DIR/heapdump.$(get_current_timestamp).hprof"
 
+java_pid="$(pgrep -x java | tail -1)" || true
 if [[ -z "$java_pid" ]]; then
 	echo "No java process is running" >&2
-	exit
+else
+	logcmd jcmd $java_pid GC.heap_dump "$out_file"
+	sync-diag-dir
 fi
-
-echo "Java process PID: $java_pid"
-echo "Output file: $DUMP_PREFIX.hprof"
-
-logcmd jcmd $java_pid GC.heap_dump $DUMP_PREFIX.hprof

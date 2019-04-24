@@ -62,6 +62,10 @@ mkdir -p /var/lib/rnode-static
 chmod 710 /var/lib/rnode-static
 chgrp www-data /var/lib/rnode-static
 
+mkdir -p /var/lib/rnode-diag
+chmod 750 /var/lib/rnode-diag
+chgrp www-data /var/lib/rnode-diag
+
 files_dir="node-files${PROFILE:+.$PROFILE}"
 cp -u $files_dir/$(hostname).*/* /var/lib/rnode-static/
 cp -u logback.xml $files_dir/validator-public-keys.txt /var/lib/rnode-static/
@@ -92,6 +96,6 @@ systemctl reload sshd
 install -C -m644 nginx/* -t /etc/nginx/
 systemctl reload nginx
 
-systemctl link $PWD/autopropose.service
+systemctl link $PWD/autopropose.service $PWD/sync-diag.{timer,service}
 systemctl daemon-reload
-systemctl enable --now autopropose
+systemctl enable --now autopropose sync-diag.timer
