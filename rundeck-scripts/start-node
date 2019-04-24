@@ -122,6 +122,7 @@ logcmd docker run -d \
 	$(get_rnode_launcher_args) \
 	-J-Xdebug \
 	-J-Xrunjdwp:transport=dt_socket,address=127.0.0.1:8888,server=y,suspend=n \
+	-J-Xcheck:jni \
 	-XX:+HeapDumpOnOutOfMemoryError \
 	-XX:HeapDumpPath=$DIAG_DIR/heapdump_OOM.hprof \
 	-XX:ErrorFile=$DIAG_DIR/hs_err.log \
