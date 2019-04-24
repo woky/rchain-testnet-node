@@ -14,6 +14,8 @@ if [[ -n "$(logcmd docker ps -qa -f name='^rnode$')" ]]; then
 	logcmd docker rename rnode $archived_name
 fi
 
+logcmd docker pull $RD_OPTION_RNODE_DOCKER_IMAGE
+
 logcmd mkdir -p /var/lib/rnode /var/lib/rnode/genesis
 
 try_download_file()
@@ -98,8 +100,6 @@ logcmd iptables -A rnode_osel -j rnode_oblock
 
 create_diag_directory
 mkdir $DIAG_DIR/jeprof
-
-logcmd docker pull $RD_OPTION_RNODE_DOCKER_IMAGE || true
 
 if [[ -f /var/lib/rnode-static/local.env ]]; then
 	logcmd source /var/lib/rnode-static/local.env
