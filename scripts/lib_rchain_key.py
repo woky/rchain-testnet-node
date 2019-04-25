@@ -21,5 +21,4 @@ def get_public_key_hex(sk_hex):
 
 if __name__ == '__main__':
     sk, pk = generate_key_pair_hex()
-    print(sk)
-    print(pk)
+    print(sk, pk)
