@@ -21,7 +21,7 @@ resource "google_compute_instance" "node_host" {
 
   boot_disk {
     initialize_params {
-      image = "ubuntu-os-cloud/ubuntu-1810"
+      image = "ubuntu-os-cloud/ubuntu-1904"
       size = 160
       type = "pd-standard"
     }
