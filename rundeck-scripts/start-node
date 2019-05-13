@@ -109,8 +109,6 @@ logcmd docker run -d \
 	--name=rnode \
 	--network=host \
 	--env-file=/var/lib/rnode-static/environment.docker \
-	-e LD_PRELOAD=/opt/libjemalloc.so.2 \
-	-e MALLOC_CONF="prof:true,lg_prof_interval:30,prof_prefix:$DIAG_DIR/jeprof/jeprof" \
 	-v /var/lib/rnode:/var/lib/rnode \
 	-v $DIAG_DIR:$DIAG_DIR \
 	-v /var/lib/rnode-static:/var/lib/rnode-static:ro \
