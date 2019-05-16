@@ -113,7 +113,7 @@ logcmd docker run -d \
 	-v $DIAG_DIR:$DIAG_DIR \
 	-v /var/lib/rnode-static:/var/lib/rnode-static:ro \
 	-v /usr/lib/x86_64-linux-gnu/libjemalloc.so.2:/opt/libjemalloc.so.2:ro \
-	--entrypoint=/opt/docker/bin/rnode
+	--entrypoint=/opt/docker/bin/rnode \
 	$RD_OPTION_RNODE_DOCKER_IMAGE \
 	$(get_rnode_launcher_args) \
 	-J-Xdebug \
