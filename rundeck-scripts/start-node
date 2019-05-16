@@ -112,11 +112,9 @@ logcmd docker run -d \
 	-v /var/lib/rnode:/var/lib/rnode \
 	-v $DIAG_DIR:$DIAG_DIR \
 	-v /var/lib/rnode-static:/var/lib/rnode-static:ro \
-	-v /opt/rdoctor:/opt/rdoctor:ro \
 	-v /usr/lib/x86_64-linux-gnu/libjemalloc.so.2:/opt/libjemalloc.so.2:ro \
-	--entrypoint=/opt/rdoctor/rdoctor \
+	--entrypoint=/opt/docker/bin/rnode
 	$RD_OPTION_RNODE_DOCKER_IMAGE \
-	/opt/docker/bin/rnode \
 	$(get_rnode_launcher_args) \
 	-J-Xdebug \
 	-J-Xrunjdwp:transport=dt_socket,address=127.0.0.1:8888,server=y,suspend=n \
