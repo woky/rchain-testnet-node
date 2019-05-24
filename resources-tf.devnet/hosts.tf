@@ -52,7 +52,7 @@ resource "google_compute_instance" "node_host" {
 
   connection {
     type = "ssh"
-    host = network_interface.0.access_config.0.nat_ip;
+    host = network_interface.0.access_config.0.nat_ip
     user = "root"
     private_key = "${file("~/.ssh/google_compute_engine")}"
   }
