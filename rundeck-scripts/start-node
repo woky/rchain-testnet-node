@@ -44,7 +44,9 @@ done \
 	< /var/lib/rnode-static/validator-public-keys.txt \
 	> /var/lib/rnode-static/bonds-10-testnet.txt
 
-logcmd 'cat /var/lib/rnode-static/bonds-*.txt >/var/lib/rnode/genesis/bonds.txt'
+sed 's/^[[:blank:]]*//; s/[[:blank:]]*$//; /^$/d' \
+	/var/lib/rnode-static/bonds-*.txt >/var/lib/rnode/genesis/bonds.txt
+
 logcmd ln -sf /var/lib/rnode-static/wallets.txt /var/lib/rnode/genesis/
 logcmd ln -sf /var/lib/rnode-static/node.*.pem /var/lib/rnode/
 
