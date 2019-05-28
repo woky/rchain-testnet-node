@@ -114,11 +114,14 @@ get_current_timestamp()
 
 get_diag_tag()
 {
+	local base suffix
+	suffix="$(tr -Cd a-z0-9 </dev/urandom | head -c6)"
 	if [[ "$RD_OPTION_DUMP_TAG" ]]; then
-		echo "$(echo -n "$RD_OPTION_DUMP_TAG" | tr -C 0-9A-Za-z-_. -)"
+		base="$(echo -n "$RD_OPTION_DUMP_TAG" | tr -C 0-9A-Za-z-_. -)"
 	else
-		echo "$(get_current_timestamp)"
+		base="$(get_current_timestamp)"
 	fi
+	echo "$base.$suffix"
 }
 
 local_to_remote_diag_directory_sub_path()
