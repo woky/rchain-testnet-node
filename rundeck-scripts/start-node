@@ -131,7 +131,7 @@ logcmd docker run -d \
 	-c /var/lib/rnode-static/rnode.conf \
 	run $(get_rnode_run_args)
 
-i=6
+i=2
 sleep_time=5
 echo "Waiting $((i*sleep_time))s for RNode to start"
 while (( i )); do
