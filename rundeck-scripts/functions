@@ -95,67 +95,56 @@ get_rnode_run_args()
 	echo
 }
 
-get_hostname_domain()
+get_current_timestamp()
 {
-	local fqdn hostname domain
+	date -Is | sed 's/+.*//; s/[^[:alnum:]-]/-/g'
+}
+
+get_random_string()
+{
+	tr -Cd a-z0-9 </dev/urandom | head -c${1-6}
+}
+
+set_rnode_hostname_domain()
+{
+	local fqdn
 	fqdn="$(hostname -f)"
 	if [[ "$fqdn" =~ ^([^\.]+)(\.(.+))?$ ]]; then
-		echo "${BASH_REMATCH[1]}" "${BASH_REMATCH[3]:-znodomain}"
+		RNODE_HOSTNAME="${BASH_REMATCH[1]}"
+		RNODE_DOMAIN="${BASH_REMATCH[3]:-znodomain}"
 	else
 		echo "Invalid FQDN: '$fqdn'" >&2
 		return 1
 	fi
 }
 
-get_current_timestamp()
-{
-	date -Is | sed 's/+.*//; s/[^[:alnum:]-]/-/g'
-}
-
-get_diag_tag()
+# requires RNODE_HOSTNAME to be set
+create_diag_tag()
 {
 	local base suffix
-	suffix="$(tr -Cd a-z0-9 </dev/urandom | head -c6)"
 	if [[ "$RD_OPTION_DUMP_TAG" ]]; then
 		base="$(echo -n "$RD_OPTION_DUMP_TAG" | tr -C 0-9A-Za-z-_. -)"
 	else
 		base="$(get_current_timestamp)"
 	fi
-	echo "$base.$suffix"
+	suffix="$(get_random_string)"
+	echo "$base.$RNODE_HOSTNAME.$suffix"
 }
 
-local_to_remote_diag_directory_sub_path()
-{
-	local diag_dir="$1" hostname domain tag
-	[[ "$diag_dir" ]]
-	read hostname domain <<<"$(get_hostname_domain)"
-	tag="$(basename $(readlink -e "$diag_dir"))"
-	echo "$domain/$tag/$hostname"
-}
+set_rnode_hostname_domain
+DIAG_TAG="$(create_diag_tag)"
 
-local_to_remote_diag_directory_path()
-{
-	echo -n /mnt/heapdumps/
-	local_to_remote_diag_directory_sub_path "$@"
-}
-
-local_to_remote_diag_directory_url()
-{
-	local sub_path
-	sub_path="$(local_to_remote_diag_directory_sub_path "$@")"
-	echo "https://files.rchain-dev.tk/heapdumps/$sub_path/"
-}
+REMOTE_DIAG_DIR=/mnt/heapdumps/$RNODE_DOMAIN/$DIAG_TAG
+REMOTE_DIAG_URL="https://files.rchain-dev.tk/heapdumps/$RNODE_DOMAIN/$DIAG_TAG"
 
 LOCAL_DIAG_ROOT=/var/lib/rnode-diag
 DIAG_DIR=$LOCAL_DIAG_ROOT/current
 
 create_diag_directory()
 {
-	local tag
-	tag="$(get_diag_tag)"
-	logcmd mkdir $LOCAL_DIAG_ROOT/$tag
+	logcmd mkdir $LOCAL_DIAG_ROOT/$DIAG_TAG
 	logcmd rm -f $DIAG_DIR
-	logcmd ln -s $LOCAL_DIAG_ROOT/$tag $DIAG_DIR
+	logcmd ln -s $LOCAL_DIAG_ROOT/$DIAG_TAG $DIAG_DIR
 }
 
 check_diag_directory()
@@ -165,7 +154,6 @@ check_diag_directory()
 		echo "Most probably RNode was stopped and/or not yet started." >&2
 		return 1
 	else
-		echo -n "Diagnostic files will be available at "
-		local_to_remote_diag_directory_url $DIAG_DIR
+		echo "Diagnostic files will be available at $REMOTE_DIAG_URL"
 	fi
 }
