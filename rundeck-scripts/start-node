@@ -134,6 +134,7 @@ logcmd docker run -d \
 i=2
 sleep_time=5
 echo "Waiting $((i*sleep_time))s for RNode to start"
+
 while (( i )); do
 	container_id="$(docker ps -q -f name=rnode)"
 	if [[ -n "$container_id" ]]; then
@@ -141,6 +142,7 @@ while (( i )); do
 		nohup docker logs -f $container_id &> $DIAG_DIR/console.log &
 		break
 	fi
+
 	sleep $sleep_time
 	: $((i--))
 done
@@ -148,20 +150,25 @@ done
 wait_time_left="${RD_OPTION_WAIT_TIME:-600}"
 sleep_time=10
 echo "Waiting ${wait_time_left}s for approved block"
+
 while (( wait_time_left > 0 )); do
 	if [[ -z "$(docker ps -q -f ID=$container_id)" ]]; then
 		echo "RNode is not running" >&2
-		echo "----- BEGIN RNode output -----"
-		docker logs $container_id || true
-		echo "----- END RNode output -----"
+		if [[ -n "$(docker ps -aq -f ID=$container_id)" ]]; then
+			echo "----- BEGIN RNODE OUTPUT -----"
+			docker logs $container_id || true
+			echo "----- END RNODE OUTPUT -----"
+		fi
 		exit 1
 	fi
+
 	height="$(docker exec $container_id ./bin/rnode show-blocks |\
 		sed -n '/^count: /{s///;p;q}')" || true
 	if (( height )); then
 		echo "Found approved block"
 		break
 	fi
+
 	sleep $sleep_time
 	: $(( wait_time_left -= sleep_time ))
 done
