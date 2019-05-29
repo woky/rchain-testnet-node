@@ -156,7 +156,7 @@ while (( wait_time_left > 0 )); do
 		echo "RNode is not running" >&2
 		if [[ -n "$(docker ps -aq -f ID=$container_id)" ]]; then
 			echo "----- BEGIN RNODE OUTPUT -----"
-			docker logs $container_id || true
+			docker logs $container_id 2>&1 || true
 			echo "----- END RNODE OUTPUT -----"
 		fi
 		exit 1
