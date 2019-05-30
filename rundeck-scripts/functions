@@ -1,12 +1,22 @@
 # vim:ft=sh
 
-export PATH="$(dirname ${BASH_SOURCE[0]}):$PATH"
+INSTALL_DIR="$(realpath $(dirname ${BASH_SOURCE[0]})/..)"
+export PATH="$INSTALL_DIR/rundeck-scripts:$PATH"
 
 logcmd()
 {
 	echo ">> $@" >&2
 	eval "$@"
 }
+
+random_key()
+(
+	cd "$INSTALL_DIR/scripts"
+	source ./venv/bin/activate
+	python3 ./lib_rchain_key.py
+)
+
+########## RNODE.CONF ##########
 
 get_config_value()
 {
@@ -94,6 +104,8 @@ get_rnode_run_args()
 	print_cli_flag  --standalone rnode_server_standalone
 	echo
 }
+
+########## DIAGNOSTICS ##########
 
 get_current_timestamp()
 {

@@ -32,7 +32,8 @@ apt install -y --no-install-recommends \
 	bpfcc-tools iotop libjemalloc2 \
 	openjdk-11-jdk-headless \
 	nginx libnginx-mod-http-fancyindex \
-	coreutils tree
+	coreutils tree \
+	python3 python3-venv build-essential
 
 curl -sSfL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 echo 'deb [arch=amd64] https://download.docker.com/linux/ubuntu cosmic stable' \
@@ -99,3 +100,10 @@ systemctl reload nginx
 systemctl link $PWD/autopropose.service $PWD/sync-diag.{timer,service}
 systemctl daemon-reload
 systemctl enable --now autopropose sync-diag.timer
+
+(
+	cd scripts
+	python3 -mvenv venv
+	source ./venv/bin/activate
+	pip3 -q install -r requirements.txt
+)
