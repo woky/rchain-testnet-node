@@ -100,8 +100,19 @@ logcmd iptables -A rnode_isel -j rnode_iblock
 logcmd iptables -F rnode_osel
 logcmd iptables -A rnode_osel -j rnode_oblock
 
-create_diag_directory
-mkdir $DIAG_DIR/jeprof
+network_id="${RD_OPTION_NETWORK_ID:-$rnode_server_network_id}"
+echo "Network ID: $network_id"
+
+DIAG_TAG=$(get_current_timestamp).$(sanitize_string "$network_id").$(hostname)
+if [[ -n "$RD_OPTION_DUMP_TAG" ]]; then
+	DIAG_TAG+=.$(sanitize_string "$RD_OPTION_DUMP_TAG")
+fi
+
+mkdir $LOCAL_DIAG_ROOT/$DIAG_TAG
+rm -f $DIAG_DIR
+ln -s $LOCAL_DIAG_ROOT/$DIAG_TAG $DIAG_DIR
+
+check_diag_directory
 
 if [[ -f /var/lib/rnode-static/local.env ]]; then
 	logcmd source /var/lib/rnode-static/local.env
@@ -129,7 +140,9 @@ logcmd docker run -d \
 	-Dlogback.configurationFile=/var/lib/rnode-static/logback.xml \
 	-p docker \
 	-c /var/lib/rnode-static/rnode.conf \
-	run $(get_rnode_run_args)
+	run \
+	--network "$network_id" \
+	$(get_rnode_run_args)
 
 i=2
 sleep_time=5

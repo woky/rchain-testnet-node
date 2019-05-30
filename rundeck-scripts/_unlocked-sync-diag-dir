@@ -5,5 +5,6 @@ source "$(dirname $0)/functions"
 local_dir="$1"
 [[ -d "$local_dir" ]]
 
+init_diag_variables "$local_dir"
 logcmd mkdir -p "$REMOTE_DIAG_DIR"
 logcmd rsync -qa --inplace "$local_dir/" "$REMOTE_DIAG_DIR"

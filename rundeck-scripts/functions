@@ -9,6 +9,26 @@ logcmd()
 	eval "$@"
 }
 
+get_current_timestamp()
+{
+	date -Is | sed 's/+.*//; s/[^[:alnum:]-]/-/g'
+}
+
+get_random_string()
+(
+	set +o pipefail
+	tr -Cd a-z0-9 </dev/urandom | head -c${1-6}
+)
+
+sanitize_string()
+{
+	if [[ -z "$1" ]]; then
+		echo "Usage: $0 <string>" >&2
+		return 1
+	fi
+	echo -n "$1" | tr -C 0-9A-Za-z-_ -
+}
+
 random_key()
 (
 	cd "$INSTALL_DIR/scripts"
@@ -107,56 +127,30 @@ get_rnode_run_args()
 
 ########## DIAGNOSTICS ##########
 
-get_current_timestamp()
-{
-	date -Is | sed 's/+.*//; s/[^[:alnum:]-]/-/g'
-}
-
-get_random_string()
-{
-	tr -Cd a-z0-9 </dev/urandom | head -c${1-6}
-}
-
-set_rnode_hostname_domain()
-{
-	local fqdn
-	fqdn="$(hostname -f)"
-	if [[ "$fqdn" =~ ^([^\.]+)(\.(.+))?$ ]]; then
-		RNODE_HOSTNAME="${BASH_REMATCH[1]}"
-		RNODE_DOMAIN="${BASH_REMATCH[3]:-znodomain}"
-	else
-		echo "Invalid FQDN: '$fqdn'" >&2
-		return 1
-	fi
-}
-
-# requires RNODE_HOSTNAME to be set
-create_diag_tag()
-{
-	local base suffix
-	if [[ "$RD_OPTION_DUMP_TAG" ]]; then
-		base="$(echo -n "$RD_OPTION_DUMP_TAG" | tr -C 0-9A-Za-z-_. -)"
-	else
-		base="$(get_current_timestamp)"
-	fi
-	suffix="$(get_random_string)"
-	echo "$base.$RNODE_HOSTNAME.$suffix"
-}
-
-set_rnode_hostname_domain
-DIAG_TAG="$(create_diag_tag)"
-
-REMOTE_DIAG_DIR=/mnt/heapdumps/$RNODE_DOMAIN/$DIAG_TAG
-REMOTE_DIAG_URL="https://files.rchain-dev.tk/heapdumps/$RNODE_DOMAIN/$DIAG_TAG"
-
 LOCAL_DIAG_ROOT=/var/lib/rnode-diag
 DIAG_DIR=$LOCAL_DIAG_ROOT/current
 
-create_diag_directory()
+init_diag_variables()
 {
-	logcmd mkdir $LOCAL_DIAG_ROOT/$DIAG_TAG
-	logcmd rm -f $DIAG_DIR
-	logcmd ln -s $LOCAL_DIAG_ROOT/$DIAG_TAG $DIAG_DIR
+	local local_diag_dir=$1
+
+	if [[ ! -d "$local_diag_dir" ]]; then
+		echo "No such directoy: '$local_diag_dir'" >&2
+		return 1
+	fi
+
+	DIAG_TAG="$(basename $(realpath -e $local_diag_dir))"
+
+	local domain
+	domain="$(hostname -f | sed -r 's/^[^\.]*\.?//')"
+	if [[ -z "$domain" || "$domain" == *.internal ]]; then
+		domain=znodomain
+	fi
+
+	REMOTE_DIAG_DIR=/mnt/heapdumps/$domain/$DIAG_TAG
+	REMOTE_DIAG_URL="https://files.rchain-dev.tk/heapdumps/$domain/$DIAG_TAG"
+
+	export DIAG_TAG REMOTE_DIAG_DIR REMOTE_DIAG_URL
 }
 
 check_diag_directory()
@@ -166,6 +160,7 @@ check_diag_directory()
 		echo "Most probably RNode was stopped and/or not yet started." >&2
 		return 1
 	else
-		echo "Diagnostic files will be available at $REMOTE_DIAG_URL"
+		init_diag_variables $DIAG_DIR
+		echo "Diagnostic files archive: $REMOTE_DIAG_URL"
 	fi
 }
