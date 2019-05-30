@@ -3,9 +3,10 @@
 INSTALL_DIR="$(realpath $(dirname ${BASH_SOURCE[0]})/..)"
 export PATH="$INSTALL_DIR/rundeck-scripts:$PATH"
 
+exec {stdout_dup_fd}>&1
 logcmd()
 {
-	echo ">> $@" >&2
+	echo ">> $@" >&$stdout_dup_fd
 	eval "$@"
 }
 

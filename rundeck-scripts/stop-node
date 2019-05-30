@@ -2,8 +2,8 @@
 set -e
 source "$(dirname $0)/functions"
 
-logcmd docker stop rnode && logcmd docker rm rnode || true
-logcmd rm -f $DIAG_DIR
+logcmd docker stop rnode >/dev/null && docker rm rnode >/dev/null || true
+rm -f $DIAG_DIR
 
 if [[ "$RD_OPTION_CLEAN_DATA" == yes ]]; then
 	logcmd rm -rf /var/lib/rnode

@@ -2,21 +2,21 @@
 set -e -o pipefail
 source "$(dirname $0)/functions"
 
-running_id="$(logcmd docker ps -q -f name='^rnode$')"
+running_id="$(docker ps -q -f name='^rnode$')"
 if [[ -n "$running_id" ]]; then
 	echo "Node is already running"
 	exit 0
 fi
 
-if [[ -n "$(logcmd docker ps -qa -f name='^rnode$')" ]]; then
+if [[ -n "$(docker ps -qa -f name='^rnode$')" ]]; then
 	archived_name="rnode.$(date +%s)"
 	echo "Existing dead container found, renaming to $archived_name"
-	logcmd docker rename rnode $archived_name
+	docker rename rnode $archived_name >/dev/null
 fi
 
 logcmd docker pull $RD_OPTION_RNODE_DOCKER_IMAGE
 
-logcmd mkdir -p /var/lib/rnode /var/lib/rnode/genesis
+mkdir -p /var/lib/rnode /var/lib/rnode/genesis
 
 try_download_file()
 {
@@ -26,7 +26,7 @@ try_download_file()
 	fi
 	status="$(logcmd curl -fsSL -w '%{http_code}' -z $file -o $file.new "$url")" || true
 	if [[ ( -e $file.new || "$status" == 404 ) && -e $file ]]; then
-		logcmd mv $file "$file.bak$(date -Is)"
+		mv $file "$file.bak$(date -Is)"
 	fi
 	if [[ -e $file.new ]]; then
 		logcmd mv $file.new $file
@@ -47,8 +47,8 @@ done \
 sed 's/^[[:blank:]]*//; s/[[:blank:]]*$//; /^$/d' \
 	/var/lib/rnode-static/bonds-*.txt >/var/lib/rnode/genesis/bonds.txt
 
-logcmd ln -sf /var/lib/rnode-static/wallets.txt /var/lib/rnode/genesis/
-logcmd ln -sf /var/lib/rnode-static/node.*.pem /var/lib/rnode/
+ln -sf /var/lib/rnode-static/wallets.txt /var/lib/rnode/genesis/
+ln -sf /var/lib/rnode-static/node.*.pem /var/lib/rnode/
 
 parse_rnode_config
 
@@ -67,38 +67,38 @@ else
 fi
 
 if ! iptables -L rnode_iblock >/dev/null 2>&1; then
-	logcmd iptables -N rnode_iblock
+	iptables -N rnode_iblock
 fi
 if ! iptables -L rnode_oblock >/dev/null 2>&1; then
-	logcmd iptables -N rnode_oblock
+	iptables -N rnode_oblock
 fi
 if ! iptables -L rnode_isel >/dev/null 2>&1; then
-	logcmd iptables -N rnode_isel
-	logcmd iptables -I INPUT 1 -j rnode_isel
+	iptables -N rnode_isel
+	iptables -I INPUT 1 -j rnode_isel
 fi
 if ! iptables -L rnode_osel >/dev/null 2>&1; then
-	logcmd iptables -N rnode_osel
-	logcmd iptables -I OUTPUT 1 -j rnode_osel
+	iptables -N rnode_osel
+	iptables -I OUTPUT 1 -j rnode_osel
 fi
 
-logcmd iptables -F rnode_iblock
-logcmd iptables -A rnode_iblock -i lo -j RETURN
-logcmd iptables -A rnode_iblock -p tcp --dport "$rnode_server_port" -s "$bootstrap_ip" -j RETURN
-logcmd iptables -A rnode_iblock -p tcp --dport "$rnode_server_port_kademlia" -j REJECT
-logcmd iptables -A rnode_iblock -p tcp --dport "$rnode_grpc_port_external" -j REJECT
+iptables -F rnode_iblock
+iptables -A rnode_iblock -i lo -j RETURN
+iptables -A rnode_iblock -p tcp --dport "$rnode_server_port" -s "$bootstrap_ip" -j RETURN
+iptables -A rnode_iblock -p tcp --dport "$rnode_server_port_kademlia" -j REJECT
+iptables -A rnode_iblock -p tcp --dport "$rnode_grpc_port_external" -j REJECT
 
 if [[ $rnode_server_standalone != true || $rnode_casper_required_signatures -eq 0 ]]; then
-	logcmd iptables -A rnode_iblock -p tcp --dport "$rnode_server_port" -j REJECT
+	iptables -A rnode_iblock -p tcp --dport "$rnode_server_port" -j REJECT
 fi
 
-logcmd iptables -F rnode_oblock
-logcmd iptables -A rnode_oblock -o lo -j RETURN
-logcmd iptables -A rnode_oblock -p tcp --dport "$bootstrap_port_kademlia" -j REJECT
+iptables -F rnode_oblock
+iptables -A rnode_oblock -o lo -j RETURN
+iptables -A rnode_oblock -p tcp --dport "$bootstrap_port_kademlia" -j REJECT
 
-logcmd iptables -F rnode_isel
-logcmd iptables -A rnode_isel -j rnode_iblock
-logcmd iptables -F rnode_osel
-logcmd iptables -A rnode_osel -j rnode_oblock
+iptables -F rnode_isel
+iptables -A rnode_isel -j rnode_iblock
+iptables -F rnode_osel
+iptables -A rnode_osel -j rnode_oblock
 
 network_id="${RD_OPTION_NETWORK_ID:-$rnode_server_network_id}"
 echo "Network ID: $network_id"
@@ -115,7 +115,7 @@ ln -s $LOCAL_DIAG_ROOT/$DIAG_TAG $DIAG_DIR
 check_diag_directory
 
 if [[ -f /var/lib/rnode-static/local.env ]]; then
-	logcmd source /var/lib/rnode-static/local.env
+	source /var/lib/rnode-static/local.env
 fi
 
 logcmd docker run -d \
@@ -142,7 +142,8 @@ logcmd docker run -d \
 	-c /var/lib/rnode-static/rnode.conf \
 	run \
 	--network "$network_id" \
-	$(get_rnode_run_args)
+	$(get_rnode_run_args) \
+	>/dev/null
 
 i=2
 sleep_time=5
@@ -191,7 +192,7 @@ if (( wait_time_left <= 0 )); then
 	exit 1
 fi
 
-logcmd iptables -F rnode_isel
-logcmd iptables -F rnode_osel
+iptables -F rnode_isel
+iptables -F rnode_osel
 
 echo Finished

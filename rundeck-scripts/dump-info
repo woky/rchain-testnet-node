@@ -3,8 +3,11 @@ set -e -o pipefail
 source "$(dirname $0)/functions"
 
 check_diag_directory
+
 out_dir="$DIAG_DIR/info.$(get_current_timestamp)"
-logcmd mkdir -p "$out_dir"
+echo "Info sub-directory: $(basename $out_dir)"
+
+mkdir -p "$out_dir"
 
 java_pid="$(pgrep -x java | tail -1)" || true
 
@@ -38,4 +41,5 @@ else
 	echo "Container 'rnode' does not exist" >&2
 fi
 
+echo "Syncing files to remote archive..."
 sync-diag-dir
