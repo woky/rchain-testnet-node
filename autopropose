@@ -13,7 +13,7 @@ while :; do
 
 	sleep "$(shuf -n1 -i$delay_min-$delay_max)"
 	ret=0
-	timeout $timeout $propose_exe || ret=$?
+	$propose_exe || ret=$?
 	if (( ret == 124 )); then
 		echo "Killed propose after $timeout timeout" >&2
 	fi
