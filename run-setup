@@ -102,9 +102,8 @@ systemctl daemon-reload
 systemctl enable --now autopropose sync-diag.timer
 systemctl restart autopropose
 
-(
-	cd scripts
-	python3 -mvenv venv
-	source ./venv/bin/activate
-	pip3 -q install -r requirements.txt
-)
+pushd scripts
+python3 -mvenv venv
+source ./venv/bin/activate
+pip3 -q install -r requirements.txt
+popd

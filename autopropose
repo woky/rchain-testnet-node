@@ -17,7 +17,7 @@ while :; do
 	(
 		if [[ -e $env_file ]]; then
 			source $env_file
-		fi
+		fi && \
 		$propose_exe
 	) || ret=$?
 
