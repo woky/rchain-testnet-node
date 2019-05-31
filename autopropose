@@ -3,8 +3,8 @@ set -e -o pipefail
 
 delay_min=60
 delay_max=90
-timeout=15m
 propose_exe="$(dirname $0)/rundeck-scripts/propose"
+env_file=/var/lib/rnode-static/local.autopropose.env
 
 while :; do
 	while [[ -z "$(docker ps -q -f name='^rnode$')" ]]; do
@@ -12,9 +12,16 @@ while :; do
 	done
 
 	sleep "$(shuf -n1 -i$delay_min-$delay_max)"
+
 	ret=0
-	$propose_exe || ret=$?
-	if (( ret == 124 )); then
-		echo "Killed propose after $timeout timeout" >&2
+	(
+		if [[ -e $env_file ]]; then
+			source $env_file
+		fi
+		$propose_exe
+	) || ret=$?
+
+	if (( $ret )); then
+		echo "Propose exited with error code $ret" >&2
 	fi
 done
