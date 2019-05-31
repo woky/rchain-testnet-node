@@ -100,6 +100,7 @@ systemctl reload nginx
 systemctl link $PWD/autopropose.service $PWD/sync-diag.{timer,service}
 systemctl daemon-reload
 systemctl enable --now autopropose sync-diag.timer
+systemctl restart autopropose
 
 (
 	cd scripts
