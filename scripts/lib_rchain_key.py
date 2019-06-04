@@ -1,23 +1,18 @@
-import nacl.signing
-from nacl.encoding import HexEncoder
+from ecdsa import SigningKey
+from ecdsa.curves import SECP256k1
 
 
 def generate_key_pair_hex():
-    sk = nacl.signing.SigningKey.generate()
-    pk = sk.verify_key
-    sk_hex = sk.encode(encoder=HexEncoder).decode('ascii')
-    pk_hex = pk.encode(encoder=HexEncoder).decode('ascii')
+    sk = SigningKey.generate(curve=SECP256k1)
+    pk = sk.get_verifying_key()
+    sk_hex = "04" + sk.to_string().hex()
+    pk_hex = pk.to_string().hex()
     return sk_hex, pk_hex
 
 
 def generate_key_hex():
     return generate_key_pair_hex()[0]
 
-
-def get_public_key_hex(sk_hex):
-    sk = nacl.signing.SigningKey(sk_hex, encoder=HexEncoder)
-    pk = sk.verify_key
-    return pk.encode(encoder=HexEncoder).decode('ascii')
 
 if __name__ == '__main__':
     sk, pk = generate_key_pair_hex()

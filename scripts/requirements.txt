@@ -1,4 +1,4 @@
-pynacl
+ecdsa
 pycryptodome
 eth-hash[pycryptodome]
 cryptography
