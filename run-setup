@@ -71,11 +71,6 @@ files_dir="node-files${PROFILE:+.$PROFILE}"
 cp -u $files_dir/$(hostname).*/* /var/lib/rnode-static/
 cp -u logback.xml $files_dir/validator-public-keys.txt /var/lib/rnode-static/
 
-mkdir -p /mnt/heapdumps
-install -C -m644 mnt-heapdumps.mount -t /etc/systemd/system/
-systemctl daemon-reload
-systemctl enable --now mnt-heapdumps.mount
-
 if [[ -z "$(docker ps -q -f name='^logspout$')" ]]; then
 	docker rm logspout || true
 	docker pull gliderlabs/logspout
@@ -97,10 +92,13 @@ systemctl reload sshd
 install -C -m644 nginx/* -t /etc/nginx/
 systemctl reload nginx
 
-systemctl link $PWD/autopropose.service $PWD/sync-diag.{timer,service}
+mkdir -p /mnt/heapdumps
+
+install -C -m644 *.service *.timer *.mount -t /usr/lib/systemd/system/
 systemctl daemon-reload
-systemctl enable --now autopropose sync-diag.timer
-systemctl restart autopropose
+
+systemctl enable --now mnt-heapdumps.mount sync-diag.timer
+systemctl enable --now autopropose.service || true # ignore if masked
 
 pushd scripts
 python3 -mvenv venv
