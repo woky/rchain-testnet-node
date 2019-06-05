@@ -14,7 +14,8 @@ if [[ -n "$(docker ps -qa -f name='^rnode$')" ]]; then
 	docker rename rnode $archived_name >/dev/null
 fi
 
-logcmd docker pull $RD_OPTION_RNODE_DOCKER_IMAGE
+echo "Pulling Docker image $RD_OPTION_RNODE_DOCKER_IMAGE"
+docker pull $RD_OPTION_RNODE_DOCKER_IMAGE
 
 mkdir -p /var/lib/rnode /var/lib/rnode/genesis
 
