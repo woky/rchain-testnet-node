@@ -24,12 +24,13 @@ try_download_file()
 	if [[ -z "$url" ]]; then
 		return 0
 	fi
-	status="$(logcmd curl -fsSL -w '%{http_code}' -z $file -o $file.new "$url")" || true
+	echo "Downloading $2 from $url"
+	status="$(curl -fsSL -w '%{http_code}' -z $file -o $file.new "$url")" || true
 	if [[ ( -e $file.new || "$status" == 404 ) && -e $file ]]; then
 		mv $file "$file.bak$(date -Is)"
 	fi
 	if [[ -e $file.new ]]; then
-		logcmd mv $file.new $file
+		mv $file.new $file
 	fi
 }
 
