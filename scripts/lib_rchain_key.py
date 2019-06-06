@@ -5,8 +5,8 @@ from ecdsa.curves import SECP256k1
 def generate_key_pair_hex():
     sk = SigningKey.generate(curve=SECP256k1)
     pk = sk.get_verifying_key()
-    sk_hex = "04" + sk.to_string().hex()
-    pk_hex = pk.to_string().hex()
+    sk_hex = sk.to_string().hex()
+    pk_hex = "04" + pk.to_string().hex()
     return sk_hex, pk_hex
 
 
