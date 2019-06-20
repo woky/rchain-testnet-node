@@ -13,13 +13,14 @@ while :; do
 
 	sleep "$(shuf -n1 -i$delay_min-$delay_max)"
 
-	ret=0
-	(
-		if [[ -e $env_file ]]; then
-			source $env_file
-		fi && \
-		$propose_exe
-	) || ret=$?
+	if [[ -e $env_file ]]; then
+		source $env_file || ret=$?
+		if (( $ret )); then
+			echo "$env_file returned error code $ret" >&2
+		fi
+	fi
+
+	$propose_exe || ret=$?
 
 	if (( $ret )); then
 		echo "Propose exited with error code $ret" >&2
