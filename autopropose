@@ -3,6 +3,8 @@ set -e -o pipefail
 
 delay_min=60
 delay_max=90
+interval=$((delay_min + (delay_max - delay_min)/2))
+
 propose_exe="$(dirname $0)/rundeck-scripts/propose"
 env_file=/var/lib/rnode-static/local.autopropose.env
 
@@ -20,7 +22,15 @@ while :; do
 		fi
 	fi
 
+	propose_start=$(date +%s)
 	$propose_exe || ret=$?
+	propose_end=$(date +%s)
+
+	propose_duration=$((propose_end - propose_start))
+	collectdctl putval \
+		$(hostname -f)/rnode/duration-propose \
+		interval=$interval \
+		$propose_start:$propose_duration
 
 	if (( $ret )); then
 		echo "Propose exited with error code $ret" >&2
