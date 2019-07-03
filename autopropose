@@ -1,9 +1,7 @@
 #!/bin/bash
 set -e -o pipefail
 
-delay_min=60
-delay_max=90
-interval=$((delay_min + (delay_max - delay_min)/2))
+interval=60
 
 propose_exe="$(dirname $0)/rundeck-scripts/propose"
 env_file=/var/lib/rnode-static/local.autopropose.env
@@ -13,14 +11,14 @@ while :; do
 		sleep 15
 	done
 
-	sleep "$(shuf -n1 -i$delay_min-$delay_max)"
-
 	if [[ -e $env_file ]]; then
 		source $env_file || ret=$?
 		if (( $ret )); then
 			echo "$env_file returned error code $ret" >&2
 		fi
 	fi
+
+	sleep "$((interval - $(date +%s) % interval))"
 
 	propose_start=$(date +%s)
 	$propose_exe || ret=$?
