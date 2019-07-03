@@ -12,6 +12,7 @@ while :; do
 	done
 
 	if [[ -e $env_file ]]; then
+		ret=0
 		source $env_file || ret=$?
 		if (( $ret )); then
 			echo "$env_file returned error code $ret" >&2
@@ -20,6 +21,7 @@ while :; do
 
 	sleep "$((interval - $(date +%s) % interval))"
 
+	ret=0
 	propose_start=$(date +%s)
 	$propose_exe || ret=$?
 	propose_end=$(date +%s)
