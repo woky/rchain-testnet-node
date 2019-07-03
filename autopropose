@@ -2,16 +2,17 @@
 set -e -o pipefail
 
 interval=60
-
 propose_exe="$(dirname $0)/rundeck-scripts/propose"
 env_file=/var/lib/rnode-static/local.autopropose.env
+
+ret=0
 
 while :; do
 	while [[ -z "$(docker ps -q -f name='^rnode$')" ]]; do
 		sleep 15
 	done
 
-	if [[ -e $env_file ]]; then
+	if [[ $ret -eq 0 && -e $env_file ]]; then
 		ret=0
 		source $env_file || ret=$?
 		if (( $ret )); then
