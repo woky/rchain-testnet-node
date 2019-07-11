@@ -130,7 +130,7 @@ logcmd docker run -d \
 	-v /usr/lib/x86_64-linux-gnu/libjemalloc.so.2:/opt/libjemalloc.so.2:ro \
 	--entrypoint=/opt/docker/bin/rnode \
 	$RD_OPTION_RNODE_DOCKER_IMAGE \
-	-J-Xss=5M \
+	-J-Xss5m \
 	$(get_rnode_launcher_args) \
 	-J-Xdebug \
 	-J-Xrunjdwp:transport=dt_socket,address=127.0.0.1:8888,server=y,suspend=n \
