@@ -2,44 +2,37 @@
 set -e -o pipefail
 source "$(dirname $0)/functions"
 
-check_diag_directory
+node_pid="$(docker inspect -f '{{.State.Pid}}' rnode || echo 0)"
+if (( node_pid == 0 )); then
+	echo "Node is not running" >&2
+	exit 1
+fi
 
+check_diag_directory
 out_dir="$DIAG_DIR/info.$(get_current_timestamp)"
 echo "Info sub-directory: $(basename $out_dir)"
-
 mkdir -p "$out_dir"
-
-java_pid="$(pgrep -x java | tail -1)" || true
 
 dump_jcmd()
 {
 	local out_file
 	out_file="$out_dir/jcmd_$(echo -n "$*" | tr -C a-zA-Z0-9_ _).txt"
-	logcmd "jcmd $java_pid $@ &>$out_file" || true
+	logcmd "jcmd $node_pid $@ &>$out_file" || true
 }
 
-if [[ -n "$java_pid" ]]; then
-	dump_jcmd GC.class_histogram
-	dump_jcmd GC.class_stats
-	dump_jcmd GC.heap_info
-	dump_jcmd Thread.print
-	dump_jcmd VM.classloader_stats
-	dump_jcmd VM.command_line
-	dump_jcmd VM.flags
-	dump_jcmd VM.info
-	dump_jcmd VM.metaspace
-	dump_jcmd VM.system_properties
-	dump_jcmd VM.version
-	dump_jcmd VM.native_memory detail
-else
-	echo "No java process is running" >&2
-fi
-
-if [[ -n "$(docker ps -qa -f name='^rnode$')" ]]; then
-	logcmd docker inspect rnode >"$out_dir/docker_inspect.json"
-else
-	echo "Container 'rnode' does not exist" >&2
-fi
+docker inspect rnode >"$out_dir/docker_inspect.json"
+dump_jcmd GC.class_histogram
+dump_jcmd GC.class_stats
+dump_jcmd GC.heap_info
+dump_jcmd Thread.print
+dump_jcmd VM.classloader_stats
+dump_jcmd VM.command_line
+dump_jcmd VM.flags
+dump_jcmd VM.info
+dump_jcmd VM.metaspace
+dump_jcmd VM.system_properties
+dump_jcmd VM.version
+dump_jcmd VM.native_memory detail
 
 echo "Syncing files to remote archive..."
 sync-diag-dir
