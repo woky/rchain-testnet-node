@@ -14,7 +14,7 @@ done
 apt install -y --no-install-recommends \
     apt-transport-https gnupg2 \
     collectd collectd-utils liboping0 jq dnsutils \
-	bpfcc-tools iotop libjemalloc2 \
+	bpfcc-tools iotop \
 	openjdk-11-jdk-headless \
 	nginx libnginx-mod-http-fancyindex \
 	coreutils tree \
