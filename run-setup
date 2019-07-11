@@ -79,6 +79,7 @@ systemctl reload nginx
 
 mkdir -p /mnt/heapdumps
 
+install -d -m755 /usr/lib/systemd/system/
 install -C -m644 *.service *.timer *.mount -t /usr/lib/systemd/system/
 systemctl daemon-reload
 
