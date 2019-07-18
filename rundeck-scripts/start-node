@@ -30,13 +30,8 @@ try_download_file()
 		return 0
 	fi
 	echo "Downloading $2 from $url"
-	status="$(curl -fsSL -w '%{http_code}' -z $file -o $file.new "$url")" || true
-	if [[ ( -e $file.new || "$status" == 404 ) && -e $file ]]; then
-		mv $file "$file.bak$(date -Is)"
-	fi
-	if [[ -e $file.new ]]; then
-		mv $file.new $file
-	fi
+	mv $file "$file.bak$(date -Is)"
+	curl -fsSL -o $file "$url" || true
 }
 
 try_download_file "$RD_OPTION_BONDS_FILE_URL" bonds-20-other.txt
@@ -133,7 +128,8 @@ logcmd docker run -d \
 	-v /var/lib/rnode-static:/var/lib/rnode-static:ro \
 	-v /usr/lib/x86_64-linux-gnu/libjemalloc.so.2:/opt/libjemalloc.so.2:ro \
 	--entrypoint=/opt/docker/bin/rnode \
-	$RD_OPTION_RNODE_DOCKER_IMAGE \
+	$RD_OPTION_DOCKER_ARGS \
+	"$RD_OPTION_RNODE_DOCKER_IMAGE" \
 	-J-Xss5m \
 	$(get_rnode_launcher_args) \
 	-J-Xdebug \
