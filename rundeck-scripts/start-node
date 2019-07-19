@@ -30,7 +30,9 @@ try_download_file()
 		return 0
 	fi
 	echo "Downloading $2 from $url"
-	mv $file "$file.bak$(date -Is)"
+	if [[ -e $file ]]; then
+		mv $file "$file.bak$(date -Is)"
+	fi
 	curl -fsSL -o $file "$url" || true
 }
 
