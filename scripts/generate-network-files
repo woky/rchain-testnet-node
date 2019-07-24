@@ -6,14 +6,15 @@ if [[ -z "$BASH_SOURCE" ]]; then
 	exit 1
 fi
 
-if [[ $# -ne 3 ]]; then
-	echo "Usage: $0 <nodes-dir> <domain> <count>" >&2
+if [[ $# -ne 4 ]]; then
+	echo "Usage: $0 <nodes-dir> <domain> <network-id> <count>" >&2
 	exit 1
 fi
 
 out_dir="$1"
 domain="$2"
-count="$3"
+network_id="$3"
+count="$4"
 scripts_dir="$(dirname "$0")"
 
 cleanup()
@@ -37,7 +38,7 @@ for i in $(seq 0 $((count-1))); do
 	host=node$i.$domain
 	node_dir="$out_dir/$host"
 	mkdir -p "$node_dir"
-	$scripts_dir/generate-node-files $host "$node_dir" "$bootstrap_url"
+	$scripts_dir/generate-node-files $host $network_id "$node_dir" "$bootstrap_url"
 	if [[ -z "$bootstrap_url" ]]; then
 		bootstrap_url="$(jq -r .rnode.server.bootstrap "$node_dir/rnode.conf")"
 		touch "$node_dir/bootstrap"
