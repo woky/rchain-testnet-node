@@ -1,5 +1,4 @@
 variable "resources_name" { default = "sandboxnet" }
-variable "gcp_region" { default = "us-west2" }
 variable "gcp_zone" { default = "us-west2-b" }
 variable "node_count" { default = 5 }
 variable "dns_suffix" { default = ".sandboxnet.rchain-dev.tk" }
