@@ -123,6 +123,11 @@ if [[ -f /var/lib/rnode-static/local.env ]]; then
 	source /var/lib/rnode-static/local.env
 fi
 
+yourkit_arg=
+if [[ $RD_OPTION_ENABLE_YOURKIT == yes ]]; then
+	yourkit_arg=-J-agentpath:/opt/YourKit-JavaProfiler/bin/linux-x86-64/libyjpagent.so=port=10001,listen=all,sessionname=$DIAG_TAG,dir=$DIAG_DIR/YourKit,logdir=$DIAG_DIR/YourKit
+fi
+
 logcmd docker run -d \
 	--name=rnode \
 	--network=host \
@@ -139,7 +144,7 @@ logcmd docker run -d \
 	$(get_rnode_launcher_args) \
 	-J-Xdebug \
 	-J-Xrunjdwp:transport=dt_socket,address=127.0.0.1:8888,server=y,suspend=n \
-	-J-agentpath:/opt/YourKit-JavaProfiler/bin/linux-x86-64/libyjpagent.so=port=10001,listen=all,sessionname=$DIAG_TAG,dir=$DIAG_DIR/YourKit,logdir=$DIAG_DIR/YourKit \
+	$yourkit_arg \
 	-XX:+HeapDumpOnOutOfMemoryError \
 	-XX:HeapDumpPath=$DIAG_DIR/heapdump_OOM.hprof \
 	-XX:+ExitOnOutOfMemoryError \
