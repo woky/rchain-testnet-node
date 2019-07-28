@@ -2,7 +2,7 @@
 set -e -o pipefail
 source "$(dirname $0)/functions"
 
-if [[ "$RD_OPTION_CLEAN_DATA" == yes ]]; then
+if [[ "$RD_OPTION_STOP_NODE" == yes ]]; then
 	stop-node
 fi
 
