@@ -18,7 +18,8 @@ apt install -y --no-install-recommends \
 	openjdk-11-jdk-headless \
 	nginx libnginx-mod-http-fancyindex \
 	coreutils tree \
-	python3 python3-venv build-essential
+	python3 python3-venv build-essential \
+	unzip
 
 curl -sSfL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 echo 'deb [arch=amd64] https://download.docker.com/linux/ubuntu cosmic stable' \
@@ -91,4 +92,13 @@ pushd scripts
 python3 -mvenv venv
 source ./venv/bin/activate
 pip3 -q install -r requirements.txt
+popd
+
+yourkit_version=2019.1
+pushd /opt
+if [[ ! -e YourKit-JavaProfiler-$yourkit_version ]]; then
+	wget -N https://www.yourkit.com/download/docker/YourKit-JavaProfiler-$yourkit_version-docker.zip
+	unzip -x YourKit-JavaProfiler-$yourkit_version-docker.zip
+	ln -srf YourKit-JavaProfiler-$yourkit_version YourKit-JavaProfiler
+fi
 popd
