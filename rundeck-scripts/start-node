@@ -117,8 +117,6 @@ ln -s $LOCAL_DIAG_ROOT/$DIAG_TAG $DIAG_DIR
 
 check_diag_directory
 
-mkdir $DIAG_DIR/YourKit
-
 if [[ -f /var/lib/rnode-static/local.env ]]; then
 	source /var/lib/rnode-static/local.env
 fi
@@ -126,6 +124,7 @@ fi
 yourkit_arg=
 if [[ $RD_OPTION_ENABLE_YOURKIT == yes ]]; then
 	yourkit_arg=-J-agentpath:/opt/YourKit-JavaProfiler/bin/linux-x86-64/libyjpagent.so=port=10001,listen=all,sessionname=$DIAG_TAG,dir=$DIAG_DIR/YourKit,logdir=$DIAG_DIR/YourKit
+	mkdir $DIAG_DIR/YourKit
 fi
 
 logcmd docker run -d \
