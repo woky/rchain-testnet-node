@@ -1,1 +1,2 @@
-/node-files*/** filter=git-crypt diff=git-crypt
+/node-files/** filter=git-crypt diff=git-crypt
+/node-files.sandboxnet/** filter=git-crypt diff=git-crypt
