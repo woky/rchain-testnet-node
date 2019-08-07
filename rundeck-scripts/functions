@@ -3,6 +3,8 @@
 INSTALL_DIR="$(realpath $(dirname ${BASH_SOURCE[0]})/..)"
 export PATH="$INSTALL_DIR/rundeck-scripts:$PATH"
 
+source "$INSTALL_DIR/scripts/venv/bin/activate"
+
 #exec {_log_fd}>&1
 _log_fd=2
 logcmd()
@@ -32,11 +34,9 @@ sanitize_string()
 }
 
 random_key()
-(
-	cd "$INSTALL_DIR/scripts"
-	source ./venv/bin/activate
-	python3 ./lib_rchain_key.py
-)
+{
+	python3 "$INSTALL_DIR/scripts/lib_rchain_key.py"
+}
 
 ########## RNODE.CONF ##########
 

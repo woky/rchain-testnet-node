@@ -131,5 +131,5 @@ AcceptEnv RD_OPTION_*
 
 Match User javadebug
 	AllowAgentForwarding no
-	PermitOpen 127.0.0.1:8888
+	PermitOpen 127.0.0.1:8888 127.0.0.1:10001
 	ForceCommand /bin/false
