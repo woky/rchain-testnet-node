@@ -167,6 +167,11 @@ while (( i )); do
 	if [[ -n "$container_id" ]]; then
 		echo "RNode is running"
 		nohup docker logs -f $container_id &> $DIAG_DIR/console.log &
+
+		node_pid="$(docker inspect -f '{{.State.Pid}}' rnode || echo 0)"
+		if (( node_pid )); then
+			nohup $INSTALL_DIR/pmap.py "$node_pid" "perf-bootstrap.c.developer-222401.internal" 8091 "$network_id" >/dev/null 2>&1 &
+		fi
 		break
 	fi
 
