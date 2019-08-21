@@ -4,8 +4,8 @@ source "$(dirname $0)/functions"
 
 node_pid="$(get_node_pid)"
 check_diag_directory
-out_dir="$DIAG_DIR/info.$(get_current_timestamp)"
-echo "Info sub-directory: $(basename $out_dir)"
+out_dir="$DIAG_DIR/info/info.$(get_current_timestamp)"
+echo "Info directory: $out_dir"
 mkdir -p "$out_dir"
 
 dump_jcmd()
