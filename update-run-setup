@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+# Set FORCE_UPDATE=1 if you want to force set HEAD to remote branch.
+# This is handy if you force pushed to remote branch or there are
+# local uncommitted changes.
+
 # Initialize main variables
 
 # The bootstrap script conditionally sourced below must check this
@@ -66,13 +70,22 @@ apt install -yq --no-install-recommends git git-crypt cron
 
 # Clone or update main Git repositoriy
 
+: ${REPO_BRANCH:=master}
+
 if [[ ! -d $REPO_DIR ]]; then
-	git clone -n $REPO_URL -b "${REPO_BRANCH:-master}" $REPO_DIR
+	git clone -n $REPO_URL -b $REPO_BRANCH $REPO_DIR
 fi
 
 cd $REPO_DIR
-git checkout "${REPO_BRANCH:-master}"
-git pull
+git fetch
+
+if ! (( $FORCE_UPDATE )); then
+	git checkout $REPO_BRANCH
+	git merge origin/$REPO_BRANCH
+else
+	git checkout -f $REPO_BRANCH
+	git reset --hard origin/$REPO_BRANCH
+fi
 
 # Exit if setup from latest Git ref has been run already
 

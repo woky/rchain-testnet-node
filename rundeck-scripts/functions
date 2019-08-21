@@ -38,6 +38,17 @@ random_key()
 	python3 "$INSTALL_DIR/scripts/lib_rchain_key.py"
 }
 
+get_node_pid()
+{
+	local node_pid
+	node_pid="$(docker inspect -f '{{.State.Pid}}' rnode || echo 0)"
+	if (( node_pid == 0 )); then
+		echo "Node is not running" >&2
+		return 1
+	fi
+	echo $node_pid
+}
+
 ########## RNODE.CONF ##########
 
 get_config_value()
