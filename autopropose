@@ -1,9 +1,16 @@
 #!/bin/bash
 set -e -o pipefail
 
-interval=60
-propose_exe="$(dirname $0)/rundeck-scripts/propose"
-env_file=/var/lib/rnode-static/local.autopropose.env
+conf_file=/var/lib/rnode-static/autopropose.conf
+
+if [[ -r $conf_file ]]; then
+	source $conf_file
+fi
+
+: ${period:=60}
+if [[ -v contract ]]; then
+	export RD_OPTION_CONTRACT=$contract
+fi
 
 ret=0
 
@@ -12,19 +19,18 @@ while :; do
 		sleep 15
 	done
 
-	if [[ $ret -eq 0 && -e $env_file ]]; then
-		ret=0
-		source $env_file || ret=$?
-		if (( $ret )); then
-			echo "$env_file returned error code $ret" >&2
-		fi
+	# Do not deploy more contracts if previous propose failed
+	if [[ -v contract && $ret -eq 0 ]]; then
+		/opt/rchain-testnet-node/rundeck-scripts/deploy || true
 	fi
 
-	sleep "$((interval - $(date +%s) % interval))"
+	if (( period )); then
+		sleep "$((period - $(date +%s) % period))"
+	fi
 
 	ret=0
 	propose_start=$(date +%s)
-	$propose_exe || ret=$?
+	/opt/rchain-testnet-node/rundeck-scripts/propose || ret=$?
 	propose_end=$(date +%s)
 
 	if (( $ret )); then
@@ -33,7 +39,7 @@ while :; do
 		propose_duration=$((propose_end - propose_start))
 		collectdctl putval \
 			$(hostname -f)/rnode/duration-propose \
-			interval=$interval \
+			period=$period \
 			$propose_start:$propose_duration || true
 	fi
 done
