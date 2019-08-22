@@ -29,17 +29,5 @@ while :; do
 	fi
 
 	ret=0
-	propose_start=$(date +%s)
 	/opt/rchain-testnet-node/rundeck-scripts/propose || ret=$?
-	propose_end=$(date +%s)
-
-	if (( $ret )); then
-		echo "Propose exited with error code $ret" >&2
-	else
-		propose_duration=$((propose_end - propose_start))
-		collectdctl putval \
-			$(hostname -f)/rnode/duration-propose \
-			period=$period \
-			$propose_start:$propose_duration || true
-	fi
 done
