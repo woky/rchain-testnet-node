@@ -32,14 +32,15 @@ echo "deb http://packages.cloud.google.com/apt gcsfuse-bionic main" \
 apt update
 apt install -y --no-install-recommends docker-ce gcsfuse
 
-files_dir="node-files${PROFILE:+.$PROFILE}"
+network_dir="node-files${PROFILE:+.$PROFILE}"
+node_dir=$network_dir/$(hostname)
 
 install -C -m644 collectd.conf -t /etc/collectd/
 systemctl restart collectd
 
 if ! grep -Fq rundeck /root/.ssh/authorized_keys; then
 	mkdir -p -m700 /root/.ssh
-	cat $files_dir/rundeck-sshid.pub >>/root/.ssh/authorized_keys
+	cat $network_dir/rundeck-sshid.pub >>/root/.ssh/authorized_keys
 fi
 
 mkdir -p /var/lib/rnode-static
@@ -50,8 +51,16 @@ mkdir -p /var/lib/rnode-diag
 chmod 750 /var/lib/rnode-diag
 chgrp www-data /var/lib/rnode-diag
 
-cp -u $files_dir/$(hostname).*/* /var/lib/rnode-static/
-cp -u logback.xml $files_dir/validator-public-keys.txt /var/lib/rnode-static/
+install -C -m600 \
+	$node_dir/rnode.conf \
+	$node_dir/node.key.pem \
+	-t /var/lib/rnode-static/
+
+install -C -m644 \
+	logback.xml \
+	$network_dir/validator-public-keys.txt \
+	$node_dir/node.certificate.pem \
+	-t /var/lib/rnode-static/
 
 if [[ -z "$(docker ps -q -f name='^logspout$')" ]]; then
 	docker rm logspout || true
