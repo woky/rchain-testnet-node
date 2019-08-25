@@ -124,7 +124,6 @@ docker_args=(
 	-v /var/lib/rnode:/var/lib/rnode
 	-v $DIAG_DIR:$DIAG_DIR
 	-v /var/lib/rnode-static:/var/lib/rnode-static:ro
-	-v /usr/lib/x86_64-linux-gnu/libjemalloc.so.2:/opt/libjemalloc.so.2:ro
 	-v /opt/YourKit-JavaProfiler:/opt/YourKit-JavaProfiler:ro
 	--entrypoint=/opt/docker/bin/rnode
 )
