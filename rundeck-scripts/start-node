@@ -137,7 +137,6 @@ logcmd docker run -d \
 	-v /usr/lib/x86_64-linux-gnu/libjemalloc.so.2:/opt/libjemalloc.so.2:ro \
 	-v /opt/YourKit-JavaProfiler:/opt/YourKit-JavaProfiler:ro \
 	--entrypoint=/opt/docker/bin/rnode \
-	$RD_OPTION_DOCKER_ARGS \
 	"$RD_OPTION_RNODE_DOCKER_IMAGE" \
 	-J-Xss5m \
 	$(get_rnode_launcher_args) \
