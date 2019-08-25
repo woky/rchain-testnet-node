@@ -117,44 +117,53 @@ ln -s $LOCAL_DIAG_ROOT/$DIAG_TAG $DIAG_DIR
 
 check_diag_directory
 
+docker_args=(
+	--name=rnode
+	--network=host
+	--env-file=/var/lib/rnode-static/environment.docker
+	-v /var/lib/rnode:/var/lib/rnode
+	-v $DIAG_DIR:$DIAG_DIR
+	-v /var/lib/rnode-static:/var/lib/rnode-static:ro
+	-v /usr/lib/x86_64-linux-gnu/libjemalloc.so.2:/opt/libjemalloc.so.2:ro
+	-v /opt/YourKit-JavaProfiler:/opt/YourKit-JavaProfiler:ro
+	--entrypoint=/opt/docker/bin/rnode
+)
+
+launcher_args=(
+	-J-Xss5m
+	-J-Xdebug
+	-J-Xrunjdwp:transport=dt_socket,address=127.0.0.1:8888,server=y,suspend=n
+	-XX:+HeapDumpOnOutOfMemoryError
+	-XX:HeapDumpPath=$DIAG_DIR/heapdump_OOM.hprof
+	-XX:+ExitOnOutOfMemoryError
+	-XX:ErrorFile=$DIAG_DIR/hs_err.log
+	-XX:MaxJavaStackTraceDepth=100000
+	-XX:NativeMemoryTracking=detail
+	-Dlogback.configurationFile=/var/lib/rnode-static/logback.xml
+	-p docker
+	-c /var/lib/rnode-static/rnode.conf
+	$(get_rnode_launcher_args)
+)
+
+run_args=(
+	--network "$network_id"
+	$(get_rnode_run_args)
+)
+
+if [[ $RD_OPTION_ENABLE_YOURKIT == yes ]]; then
+	mkdir $DIAG_DIR/YourKit
+	launcher_args+=(-J-agentpath:/opt/YourKit-JavaProfiler/bin/linux-x86-64/libyjpagent.so=port=10001,listen=all,sessionname=$DIAG_TAG,dir=$DIAG_DIR/YourKit,logdir=$DIAG_DIR/YourKit)
+fi
+
 if [[ -f /var/lib/rnode-static/local.env ]]; then
 	source /var/lib/rnode-static/local.env
 fi
 
-yourkit_arg=
-if [[ $RD_OPTION_ENABLE_YOURKIT == yes ]]; then
-	yourkit_arg=-J-agentpath:/opt/YourKit-JavaProfiler/bin/linux-x86-64/libyjpagent.so=port=10001,listen=all,sessionname=$DIAG_TAG,dir=$DIAG_DIR/YourKit,logdir=$DIAG_DIR/YourKit
-	mkdir $DIAG_DIR/YourKit
-fi
-
 logcmd docker run -d \
-	--name=rnode \
-	--network=host \
-	--env-file=/var/lib/rnode-static/environment.docker \
-	-v /var/lib/rnode:/var/lib/rnode \
-	-v $DIAG_DIR:$DIAG_DIR \
-	-v /var/lib/rnode-static:/var/lib/rnode-static:ro \
-	-v /usr/lib/x86_64-linux-gnu/libjemalloc.so.2:/opt/libjemalloc.so.2:ro \
-	-v /opt/YourKit-JavaProfiler:/opt/YourKit-JavaProfiler:ro \
-	--entrypoint=/opt/docker/bin/rnode \
+	${docker_args[@]}  \
 	"$RD_OPTION_RNODE_DOCKER_IMAGE" \
-	-J-Xss5m \
-	$(get_rnode_launcher_args) \
-	-J-Xdebug \
-	-J-Xrunjdwp:transport=dt_socket,address=127.0.0.1:8888,server=y,suspend=n \
-	$yourkit_arg \
-	-XX:+HeapDumpOnOutOfMemoryError \
-	-XX:HeapDumpPath=$DIAG_DIR/heapdump_OOM.hprof \
-	-XX:+ExitOnOutOfMemoryError \
-	-XX:ErrorFile=$DIAG_DIR/hs_err.log \
-	-XX:MaxJavaStackTraceDepth=100000 \
-	-XX:NativeMemoryTracking=detail \
-	-Dlogback.configurationFile=/var/lib/rnode-static/logback.xml \
-	-p docker \
-	-c /var/lib/rnode-static/rnode.conf \
-	run \
-	--network "$network_id" \
-	$(get_rnode_run_args) \
+	${launcher_args[@]} \
+	run ${run_args[@]}
 	>/dev/null
 
 i=2
