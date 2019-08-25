@@ -37,11 +37,6 @@ files_dir="node-files${PROFILE:+.$PROFILE}"
 install -C -m644 collectd.conf -t /etc/collectd/
 systemctl restart collectd
 
-mkdir -p /opt/rdoctor
-curl -fsSL -z /opt/rdoctor/rdoctor -o /opt/rdoctor/rdoctor \
-	https://build.rchain-dev.tk/misc/rdoctor/latest/linux.amd64/rdoctor
-chmod +x /opt/rdoctor/rdoctor
-
 if ! grep -Fq rundeck /root/.ssh/authorized_keys; then
 	mkdir -p -m700 /root/.ssh
 	cat $files_dir/rundeck-sshid.pub >>/root/.ssh/authorized_keys
