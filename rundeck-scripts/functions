@@ -49,6 +49,12 @@ get_node_pid()
 	echo $node_pid
 }
 
+get_tls_node_id()
+{
+	python3 $INSTALL_DIR/scripts/pem-key-to-node-id \
+		/var/lib/rnode-static/node.key.pem
+}
+
 ########## RNODE.CONF ##########
 
 get_config_value()
@@ -137,6 +143,17 @@ get_rnode_run_args()
 	print_cli_flag  --standalone rnode_server_standalone
 	echo
 }
+
+get_node_address()
+(
+	set -u
+	node_id=${1:-$(get_tls_node_id)}
+	printf 'rnode://%s@%s?protocol=%s&discovery=%s' \
+		$node_id \
+		$rnode_server_host \
+		$rnode_server_port \
+		$rnode_server_port_kademlia
+)
 
 ########## DIAGNOSTICS ##########
 
