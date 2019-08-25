@@ -53,21 +53,44 @@ sed 's/^[[:blank:]]*//; s/[[:blank:]]*$//; /^$/d' \
 ln -sf /var/lib/rnode-static/wallets.txt /var/lib/rnode/genesis/
 ln -sf /var/lib/rnode-static/node.*.pem /var/lib/rnode/
 
+######################################################################
+# config load and adjustments
+
 parse_rnode_config
 
-if [[ $rnode_casper_required_signatures -gt 0 && $rnode_server_standalone != true ]]; then
+if [[
+	$rnode_server_standalone != true &&
+	-n $rnode_server_bootstrap
+]]; then
+	eval "$(parse-node-url "$rnode_server_bootstrap" bootstrap_)"
+fi
+
+if [[
+	$rnode_server_standalone == true ||
+	-z $rnode_server_bootstrap ||
+	$bootstrap_node_id == $(get_tls_node_id)
+]]; then
+	rnode_server_standalone=true
+	echo "Node is standalone"
+else
+	bootstrap_ip="$(dig +short $bootstrap_hostname A | tail -1)"
+	if [[ -n "$bootstrap_ip" ]]; then
+		echo "Node will bootstrap from $bootstrap_hostname ($bootstrap_ip)"
+	else
+		echo "Failed to resolve bootstrap hostname '$bootstrap_hostname'" >&2
+		exit 1
+	fi
+fi
+
+if [[
+	$rnode_casper_required_signatures -gt 0 &&
+	$rnode_server_standalone != true 
+]]; then
 	rnode_casper_genesis_validator=true
 fi
 
-eval "$(parse-node-url "$rnode_server_bootstrap" bootstrap_)"
-bootstrap_ip="$(dig +short $bootstrap_hostname A | tail -1)"
-
-if [[ -n "$bootstrap_ip" ]]; then
-	echo "Bootstrap IP address: $bootstrap_ip"
-else
-	echo "Failed to get/resolve bootstrap IP" >&2
-	exit 1
-fi
+######################################################################
+# initial network isolation
 
 if ! iptables -L rnode_iblock >/dev/null 2>&1; then
 	iptables -N rnode_iblock
@@ -102,6 +125,9 @@ iptables -F rnode_isel
 iptables -A rnode_isel -j rnode_iblock
 iptables -F rnode_osel
 iptables -A rnode_osel -j rnode_oblock
+
+######################################################################
+# diagnostics setup
 
 network_id="${RD_OPTION_NETWORK_ID:-$rnode_server_network_id}"
 echo "Network ID: $network_id"
