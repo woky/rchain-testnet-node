@@ -109,13 +109,19 @@ fi
 
 iptables -F rnode_iblock
 iptables -A rnode_iblock -i lo -j RETURN
-iptables -A rnode_iblock -p tcp --dport "$rnode_server_port" -s "$bootstrap_ip" -j RETURN
+if [[ $rnode_server_standalone != true ]]; then
+	iptables -A rnode_iblock -p tcp --dport "$rnode_server_port" -s "$bootstrap_ip" -j RETURN
+	iptables -A rnode_iblock -p tcp --dport "$rnode_server_port" -j REJECT
+elif [[ $rnode_casper_required_signatures -eq 0 ]]; then
+	iptables -A rnode_iblock -p tcp --dport "$rnode_server_port" -j REJECT
+else
+	# Let bootstrap's server port open to any validator when genesis block
+	# creation requires non-zero number of signatures. Unauthorized validators
+	# are not in bonds.txt so it shouldn't be a problem.
+	true
+fi
 iptables -A rnode_iblock -p tcp --dport "$rnode_server_port_kademlia" -j REJECT
 iptables -A rnode_iblock -p tcp --dport "$rnode_grpc_port_external" -j REJECT
-
-if [[ $rnode_server_standalone != true || $rnode_casper_required_signatures -eq 0 ]]; then
-	iptables -A rnode_iblock -p tcp --dport "$rnode_server_port" -j REJECT
-fi
 
 iptables -F rnode_oblock
 iptables -A rnode_oblock -o lo -j RETURN
