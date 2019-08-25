@@ -41,7 +41,6 @@ for i in $(seq 0 $((count-1))); do
 	$scripts_dir/generate-node-files $host $network_id "$node_dir" "$bootstrap_url"
 	if [[ -z "$bootstrap_url" ]]; then
 		bootstrap_url="$(jq -r .rnode.server.bootstrap "$node_dir/rnode.conf")"
-		touch "$node_dir/bootstrap"
 	fi
 	jq -r .rnode.casper.'"validator-public-key"' "$node_dir/rnode.conf" \
 		>>"$out_dir/validator-public-keys.txt"
