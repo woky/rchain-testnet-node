@@ -117,6 +117,9 @@ ln -s $LOCAL_DIAG_ROOT/$DIAG_TAG $DIAG_DIR
 
 check_diag_directory
 
+######################################################################
+# BEGIN docker run
+
 docker_args=(
 	--name=rnode
 	--network=host
@@ -125,7 +128,6 @@ docker_args=(
 	-v $DIAG_DIR:$DIAG_DIR
 	-v /var/lib/rnode-static:/var/lib/rnode-static:ro
 	-v /opt/YourKit-JavaProfiler:/opt/YourKit-JavaProfiler:ro
-	--entrypoint=/opt/docker/bin/rnode
 )
 
 launcher_args=(
@@ -154,6 +156,10 @@ if [[ $RD_OPTION_ENABLE_YOURKIT == yes ]]; then
 	launcher_args+=(-J-agentpath:/opt/YourKit-JavaProfiler/bin/linux-x86-64/libyjpagent.so=port=10001,listen=all,sessionname=$DIAG_TAG,dir=$DIAG_DIR/YourKit,logdir=$DIAG_DIR/YourKit)
 fi
 
+if [[ -f /var/lib/rnode-static/environment.docker ]]; then
+	docker_args+=(--entrypoint=/opt/docker/bin/rnode)
+fi
+
 if [[ -f /var/lib/rnode-static/local.env ]]; then
 	source /var/lib/rnode-static/local.env
 fi
@@ -164,6 +170,9 @@ logcmd docker run -d \
 	${launcher_args[@]} \
 	run ${run_args[@]}
 	>/dev/null
+
+# END docker run
+######################################################################
 
 i=2
 sleep_time=5
