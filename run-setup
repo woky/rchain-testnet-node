@@ -106,8 +106,13 @@ fi
 
 systemctl daemon-reload
 
-systemctl enable --now sync-diag.timer
-systemctl enable --now autopropose.service || true # ignore if masked
+for unit in sync-diag.timer autopropose.service; do
+	unit_state=$(systemctl list-unit-files --no-legend $unit | awk '{print $2}')
+	if [[ $unit_state != masked* ]]; then
+		systemctl enable $unit
+		systemctl restart $unit
+	fi
+done
 
 pushd scripts >/dev/null
 python3 -mvenv venv
