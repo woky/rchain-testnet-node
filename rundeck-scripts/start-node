@@ -25,19 +25,17 @@ mkdir -p /var/lib/rnode /var/lib/rnode/genesis
 
 try_download_file()
 {
-	local url="$1" file=/var/lib/rnode-static/$2 status
-	if [[ -z "$url" ]]; then
-		return 0
+	local url="$1" dest=$2 status
+	if [[ -z $url ]]; then
+		touch $dest
+	else
+		echo "Downloading $url to $dest"
+		curl -fsSL -o "$dest" "$url"
 	fi
-	echo "Downloading $2 from $url"
-	if [[ -e $file ]]; then
-		mv $file "$file.bak$(date -Is)"
-	fi
-	curl -fsSL -o $file "$url" || true
 }
 
-try_download_file "$RD_OPTION_BONDS_FILE_URL" bonds-20-other.txt
-try_download_file "$RD_OPTION_WALLETS_FILE_URL" wallets.txt
+try_download_file "$RD_OPTION_BONDS_FILE_URL"   /var/lib/rnode/genesis/_bonds-thirdparty.txt
+try_download_file "$RD_OPTION_WALLETS_FILE_URL" /var/lib/rnode/genesis/wallets.txt
 
 i=1
 while read pk; do
@@ -45,12 +43,11 @@ while read pk; do
 	: $((i++))
 done \
 	< /var/lib/rnode-static/validator-public-keys.txt \
-	> /var/lib/rnode-static/bonds-10-testnet.txt
+	> /var/lib/rnode/genesis/bonds.txt
 
 sed 's/^[[:blank:]]*//; s/[[:blank:]]*$//; /^$/d' \
-	/var/lib/rnode-static/bonds-*.txt >/var/lib/rnode/genesis/bonds.txt
+	/var/lib/rnode/genesis/_bonds-thirdparty.txt >>/var/lib/rnode/genesis/bonds.txt
 
-ln -sf /var/lib/rnode-static/wallets.txt /var/lib/rnode/genesis/
 ln -sf /var/lib/rnode-static/node.*.pem /var/lib/rnode/
 
 ######################################################################
