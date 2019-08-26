@@ -1,7 +1,7 @@
 # vim:ft=sh
 
 INSTALL_DIR="$(realpath $(dirname ${BASH_SOURCE[0]})/..)"
-export PATH="$INSTALL_DIR/rundeck-scripts:$PATH"
+export PATH="$INSTALL_DIR/rundeck-scripts:/snap/bin:$PATH"
 
 source "$INSTALL_DIR/scripts/venv/bin/activate"
 
@@ -196,10 +196,10 @@ init_diag_variables()
 		domain=znodomain
 	fi
 
-	REMOTE_DIAG_DIR=/mnt/heapdumps/$domain/$DIAG_TAG
+	REMOTE_DIAG_GS_URL=gs://heapdumps.bucket.rchain-dev.tk/$domain/$DIAG_TAG
 	REMOTE_DIAG_URL="https://files.rchain-dev.tk/heapdumps/$domain/$DIAG_TAG/"
 
-	export DIAG_TAG REMOTE_DIAG_DIR REMOTE_DIAG_URL
+	export DIAG_TAG REMOTE_DIAG_GS_URL REMOTE_DIAG_URL
 
 	sed -E \
 		-e "s|@@HOSTNAME@@|$fqdn|g" \

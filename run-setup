@@ -21,6 +21,10 @@ apt install -y --no-install-recommends \
 	python3 python3-venv build-essential \
 	unzip graphviz
 
+# We also require gcloud/gsutil. This is installed on Ubuntu cloud images via
+# snap by default. If you disable or remove snap, don't forget to install it via
+# other means.
+
 curl -sSfL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 echo 'deb [arch=amd64] https://download.docker.com/linux/ubuntu cosmic stable' \
     >/etc/apt/sources.list.d/docker-ce.list
@@ -92,13 +96,17 @@ systemctl reload sshd
 install -C -m644 nginx/* -t /etc/nginx/
 systemctl reload nginx
 
-mkdir -p /mnt/heapdumps
-
 install -d -m755 /usr/lib/systemd/system/
-install -C -m644 *.service *.timer *.mount -t /usr/lib/systemd/system/
+install -C -m644 *.service *.timer -t /usr/lib/systemd/system/
+
+if [[ -f /usr/lib/systemd/system/mnt-heapdumps.mount ]]; then
+	systemctl disable --now mnt-heapdumps.mount
+	rm /usr/lib/systemd/system/mnt-heapdumps.mount
+fi
+
 systemctl daemon-reload
 
-systemctl enable --now mnt-heapdumps.mount sync-diag.timer
+systemctl enable --now sync-diag.timer
 systemctl enable --now autopropose.service || true # ignore if masked
 
 pushd scripts >/dev/null
