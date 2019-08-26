@@ -4,6 +4,6 @@ resource "google_service_account" "svc_account_node" {
 
 resource "google_storage_bucket_iam_member" "member" {
   bucket = "heapdumps.bucket.rchain-dev.tk"
-  role = "roles/storage.objectAdmin"
+  role = "roles/storage.objectCreator"
   member = "serviceAccount:${google_service_account.svc_account_node.email}"
 }
