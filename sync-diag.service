@@ -1,5 +1,6 @@
 [Unit]
-After=network.target
+Requires=mnt-heapdumps.mount
+After=mnt-heapdumps.mount
 
 [Service]
 ExecStart=/opt/rchain-testnet-node/sync-diag
