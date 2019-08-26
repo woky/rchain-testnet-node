@@ -189,16 +189,23 @@ init_diag_variables()
 
 	DIAG_TAG="$(basename $(realpath -e $local_diag_dir))"
 
-	local domain
-	domain="$(hostname -f | sed -r 's/^[^\.]*\.?//')"
+	local fqdn domain
+	fqdn=$(hostname -f)
+	domain=${fqdn#*.}
 	if [[ -z "$domain" || "$domain" == *.internal ]]; then
 		domain=znodomain
 	fi
 
 	REMOTE_DIAG_DIR=/mnt/heapdumps/$domain/$DIAG_TAG
-	REMOTE_DIAG_URL="https://files.rchain-dev.tk/heapdumps/$domain/$DIAG_TAG"
+	REMOTE_DIAG_URL="https://files.rchain-dev.tk/heapdumps/$domain/$DIAG_TAG/"
 
 	export DIAG_TAG REMOTE_DIAG_DIR REMOTE_DIAG_URL
+
+	sed -E \
+		-e "s|@@HOSTNAME@@|$fqdn|g" \
+		-e "s|@@ARCHIVE_URL@@|$REMOTE_DIAG_URL|g" \
+		< $INSTALL_DIR/index.html.in \
+		> $DIAG_DIR/_index.html
 }
 
 check_diag_directory()
