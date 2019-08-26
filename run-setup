@@ -32,31 +32,44 @@ echo "deb http://packages.cloud.google.com/apt gcsfuse-bionic main" \
 apt update
 apt install -y --no-install-recommends docker-ce gcsfuse
 
-files_dir="node-files${PROFILE:+.$PROFILE}"
+network_dir="node-files${PROFILE:+.$PROFILE}"
+node_dir=$network_dir/$(hostname)
 
 install -C -m644 collectd.conf -t /etc/collectd/
 systemctl restart collectd
 
-mkdir -p /opt/rdoctor
-curl -fsSL -z /opt/rdoctor/rdoctor -o /opt/rdoctor/rdoctor \
-	https://build.rchain-dev.tk/misc/rdoctor/latest/linux.amd64/rdoctor
-chmod +x /opt/rdoctor/rdoctor
-
 if ! grep -Fq rundeck /root/.ssh/authorized_keys; then
 	mkdir -p -m700 /root/.ssh
-	cat $files_dir/rundeck-sshid.pub >>/root/.ssh/authorized_keys
+	cat $network_dir/rundeck-sshid.pub >>/root/.ssh/authorized_keys
 fi
 
-mkdir -p /var/lib/rnode-static
-chmod 710 /var/lib/rnode-static
+mkdir -m710 -p /var/lib/rnode-static
 chgrp www-data /var/lib/rnode-static
 
-mkdir -p /var/lib/rnode-diag
-chmod 750 /var/lib/rnode-diag
+mkdir -m750 -p /var/lib/rnode-diag
 chgrp www-data /var/lib/rnode-diag
 
-cp -u $files_dir/$(hostname).*/* /var/lib/rnode-static/
-cp -u logback.xml $files_dir/validator-public-keys.txt /var/lib/rnode-static/
+install -C -m600 \
+	$node_dir/node.key.pem \
+	-t /var/lib/rnode-static/
+
+install -C -m644 \
+	logback.xml \
+	$network_dir/validator-public-keys.txt \
+	$node_dir/node.certificate.pem \
+	-t /var/lib/rnode-static/
+
+mkdir -m700 -p /var/lib/rnode-static/rnode.conf.d
+
+shopt -s nullglob
+
+install -C -m600 \
+	rnode.conf.d/*.conf \
+	$network_dir/rnode.conf.d/*.conf \
+	$node_dir/rnode.conf.d/*.conf \
+	-t /var/lib/rnode-static/rnode.conf.d/
+
+shopt -u nullglob
 
 if [[ -z "$(docker ps -q -f name='^logspout$')" ]]; then
 	docker rm logspout || true

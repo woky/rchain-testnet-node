@@ -85,9 +85,6 @@ rnode_conf = {
 
 os.umask(0o77)
 
-with (out_dir / 'environment.docker').open('w') as f:
-    pass
-
 (out_dir / 'rnode.conf').write_text(json.dumps(rnode_conf, indent=4))
 (out_dir / 'node.key.pem').write_text(tls_key)
 (out_dir / 'node.certificate.pem').write_text(tls_cert)

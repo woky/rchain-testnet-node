@@ -14,6 +14,7 @@ var_prefix = sys.argv[2] if len(sys.argv) > 2 else ''
 parts = urlparse(url)
 query = parse_qs(parts.query)
 
+print('{}node_id={}'.format(var_prefix, quote(parts.username)))
 print('{}hostname={}'.format(var_prefix, quote(parts.hostname)))
 print('{}port={}'.format(var_prefix, quote(query['protocol'][0])))
 print('{}port_kademlia={}'.format(var_prefix, quote(query['discovery'][0])))
