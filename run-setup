@@ -101,17 +101,17 @@ systemctl daemon-reload
 systemctl enable --now mnt-heapdumps.mount sync-diag.timer
 systemctl enable --now autopropose.service || true # ignore if masked
 
-pushd scripts
+pushd scripts >/dev/null
 python3 -mvenv venv
 source ./venv/bin/activate
 pip3 -q install -r requirements.txt
-popd
+popd >/dev/null
 
 yourkit_version=2019.1
-pushd /opt
+pushd /opt >/dev/null
 if [[ ! -e YourKit-JavaProfiler-$yourkit_version ]]; then
 	wget -N https://www.yourkit.com/download/docker/YourKit-JavaProfiler-$yourkit_version-docker.zip
 	unzip -x YourKit-JavaProfiler-$yourkit_version-docker.zip
 	ln -srf YourKit-JavaProfiler-$yourkit_version YourKit-JavaProfiler
 fi
-popd
+popd >/dev/null

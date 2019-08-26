@@ -69,7 +69,7 @@ merge_rnode_conf_fragments()
 
 	install -m600 rnode.conf -t /var/lib/rnode/
 
-	cd -
+	cd - >/dev/null
 	rm -r $temp_dir
 )
 
