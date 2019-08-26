@@ -59,9 +59,17 @@ install -C -m600 \
 
 install -C -m644 \
 	logback.xml \
-	$network_dir/validator-public-keys.txt \
 	$node_dir/node.certificate.pem \
 	-t /var/lib/rnode-static/
+
+rm -f /var/lib/rnode-static/validator-public-keys.txt
+
+for net_node_dir in $network_dir/node*; do
+	net_node_pubkey=$(_QUIET=1 \
+		./scripts/merge-json-fragments $net_node_dir/rnode.conf.d |\
+		jq -r .rnode.casper.'"validator-public-key"')
+	echo $net_node_pubkey >>/var/lib/rnode-static/validator-public-keys.txt
+done
 
 mkdir -m700 -p /var/lib/rnode-static/rnode.conf.d
 

@@ -32,7 +32,6 @@ bootstrap_url=
 
 umask 077
 mkdir -p "$out_dir"
-echo -n >"$out_dir/validator-public-keys.txt"
 
 for i in $(seq 0 $((count-1))); do
 	host=node$i
@@ -42,6 +41,4 @@ for i in $(seq 0 $((count-1))); do
 	if [[ -z "$bootstrap_url" ]]; then
 		bootstrap_url="$(jq -r .rnode.server.bootstrap "$node_dir/rnode.conf")"
 	fi
-	jq -r .rnode.casper.'"validator-public-key"' "$node_dir/rnode.conf" \
-		>>"$out_dir/validator-public-keys.txt"
 done
