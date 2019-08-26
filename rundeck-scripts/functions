@@ -1,7 +1,7 @@
 # vim:ft=sh
 
 INSTALL_DIR="$(realpath $(dirname ${BASH_SOURCE[0]})/..)"
-export PATH="$INSTALL_DIR/rundeck-scripts:/snap/bin:$PATH"
+export PATH="$INSTALL_DIR/rundeck-scripts:$INSTALL_DIR/scripts:/snap/bin:$PATH"
 
 source "$INSTALL_DIR/scripts/venv/bin/activate"
 
@@ -51,8 +51,7 @@ get_node_pid()
 
 get_tls_node_id()
 {
-	python3 $INSTALL_DIR/scripts/pem-key-to-node-id \
-		/var/lib/rnode-static/node.key.pem
+	pem-key-to-node-id /var/lib/rnode-static/node.key.pem
 }
 
 merge_rnode_conf_fragments()
