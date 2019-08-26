@@ -56,20 +56,10 @@ get_tls_node_id()
 
 merge_rnode_conf_fragments()
 (
-	temp_dir=$(mktemp -d rnode.conf.tmpXXXXXXXX)
-	cd $temp_dir
-
-	echo '{}' >rnode.conf
-	for fragment in /var/lib/rnode-static/rnode.conf.d/*.conf; do
-		echo "Adding $fragment to rnode.conf"
-		jq -s --indent 4 '.[0] * .[1]' rnode.conf $fragment >rnode.conf.new
-		mv rnode.conf.new rnode.conf
-	done
-
-	install -m600 rnode.conf -t /var/lib/rnode/
-
-	cd - >/dev/null
-	rm -r $temp_dir
+	echo "Merging configuration fragments to /var/lib/rnode/rnode.conf"
+	umask 077
+	merge-json-fragments /var/lib/rnode-static/rnode.conf.d \
+		>/var/lib/rnode/rnode.conf
 )
 
 ########## RNODE.CONF ##########
