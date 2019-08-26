@@ -1,2 +1,3 @@
+__pycache__
 /resources-tf*/.terraform*
 /resources-tf*/terraform.tfstate*
