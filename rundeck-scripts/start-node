@@ -56,6 +56,7 @@ ln -sf /var/lib/rnode-static/node.*.pem /var/lib/rnode/
 ######################################################################
 # config load and adjustments
 
+merge_rnode_conf_fragments
 parse_rnode_config
 
 if [[
@@ -174,7 +175,7 @@ launcher_args=(
 	-XX:NativeMemoryTracking=detail
 	-Dlogback.configurationFile=/var/lib/rnode-static/logback.xml
 	-p docker
-	-c /var/lib/rnode-static/rnode.conf
+	-c /var/lib/rnode/rnode.conf
 	$(get_rnode_launcher_args)
 )
 
