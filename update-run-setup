@@ -82,19 +82,19 @@ git fetch
 if ! (( $FORCE_UPDATE )); then
 	git checkout $REPO_BRANCH
 	git merge origin/$REPO_BRANCH
+
+	# Exit if setup from latest Git ref has been run already
+
+	curr_gitrev="$(git rev-parse --short HEAD)"
+	if [[ -e $state_file ]]; then
+		last_gitrev="$(cat $state_file)"
+		if [[ "$last_gitrev" == "$curr_gitrev" ]]; then
+			exit 0
+		fi
+	fi
 else
 	git checkout -f $REPO_BRANCH
 	git reset --hard origin/$REPO_BRANCH
-fi
-
-# Exit if setup from latest Git ref has been run already
-
-curr_gitrev="$(git rev-parse --short HEAD)"
-if [[ -e $state_file ]]; then
-	last_gitrev="$(cat $state_file)"
-	if [[ "$last_gitrev" == "$curr_gitrev" ]]; then
-		exit 0
-	fi
 fi
 
 # Unlock Git repository if necessary
