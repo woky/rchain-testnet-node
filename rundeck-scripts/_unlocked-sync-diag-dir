@@ -6,5 +6,6 @@ local_dir="$1"
 [[ -d "$local_dir" ]]
 
 init_diag_variables "$local_dir"
-mkdir -p "$REMOTE_DIAG_DIR"
-rsync -qa --inplace "$local_dir/" "$REMOTE_DIAG_DIR"
+logcmd gsutil rsync -Cdru -j log,txt \
+	-x '_index\.html' \
+	"$local_dir" "$REMOTE_DIAG_GS_URL"

@@ -21,6 +21,10 @@ apt install -y --no-install-recommends \
 	python3 python3-venv build-essential \
 	unzip graphviz
 
+# We also require gcloud/gsutil. This is installed on Ubuntu cloud images via
+# snap by default. If you disable or remove snap, don't forget to install it via
+# other means.
+
 curl -sSfL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 echo 'deb [arch=amd64] https://download.docker.com/linux/ubuntu cosmic stable' \
     >/etc/apt/sources.list.d/docker-ce.list
@@ -55,9 +59,17 @@ install -C -m600 \
 
 install -C -m644 \
 	logback.xml \
-	$network_dir/validator-public-keys.txt \
 	$node_dir/node.certificate.pem \
 	-t /var/lib/rnode-static/
+
+rm -f /var/lib/rnode-static/validator-public-keys.txt
+
+for net_node_dir in $network_dir/node*; do
+	net_node_pubkey=$(_QUIET=1 \
+		./scripts/merge-json-fragments $net_node_dir/rnode.conf.d |\
+		jq -r .rnode.casper.'"validator-public-key"')
+	echo $net_node_pubkey >>/var/lib/rnode-static/validator-public-keys.txt
+done
 
 mkdir -m700 -p /var/lib/rnode-static/rnode.conf.d
 
@@ -92,26 +104,35 @@ systemctl reload sshd
 install -C -m644 nginx/* -t /etc/nginx/
 systemctl reload nginx
 
-mkdir -p /mnt/heapdumps
-
 install -d -m755 /usr/lib/systemd/system/
-install -C -m644 *.service *.timer *.mount -t /usr/lib/systemd/system/
+install -C -m644 *.service *.timer -t /usr/lib/systemd/system/
+
+if [[ -f /usr/lib/systemd/system/mnt-heapdumps.mount ]]; then
+	systemctl disable --now mnt-heapdumps.mount
+	rm /usr/lib/systemd/system/mnt-heapdumps.mount
+fi
+
 systemctl daemon-reload
 
-systemctl enable --now mnt-heapdumps.mount sync-diag.timer
-systemctl enable --now autopropose.service || true # ignore if masked
+for unit in sync-diag.timer autopropose.service; do
+	unit_state=$(systemctl list-unit-files --no-legend $unit | awk '{print $2}')
+	if [[ $unit_state != masked* ]]; then
+		systemctl enable $unit
+		systemctl restart $unit
+	fi
+done
 
-pushd scripts
+pushd scripts >/dev/null
 python3 -mvenv venv
 source ./venv/bin/activate
 pip3 -q install -r requirements.txt
-popd
+popd >/dev/null
 
 yourkit_version=2019.1
-pushd /opt
+pushd /opt >/dev/null
 if [[ ! -e YourKit-JavaProfiler-$yourkit_version ]]; then
 	wget -N https://www.yourkit.com/download/docker/YourKit-JavaProfiler-$yourkit_version-docker.zip
 	unzip -x YourKit-JavaProfiler-$yourkit_version-docker.zip
 	ln -srf YourKit-JavaProfiler-$yourkit_version YourKit-JavaProfiler
 fi
-popd
+popd >/dev/null

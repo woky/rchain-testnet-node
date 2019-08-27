@@ -4,7 +4,7 @@ conf_file=/var/lib/rnode-static/autopropose.conf
 
 case "$RD_OPTION_STATE" in
 	disabled)
-		systemctl disable --now autopropose
+		systemctl mask --now autopropose
 		rm -f $conf_file
 		;;
 	enabled)
@@ -18,8 +18,8 @@ case "$RD_OPTION_STATE" in
 		contract=${RD_OPTION_CONTRACT@Q}
 		EOF
 
-		systemctl enable autopropose
-		systemctl restart autopropose
+		systemctl unmask autopropose
+		systemctl enable --now autopropose
 		;;
 	*)
 		echo "Invalid state: '$RD_OPTION_STATE'"
