@@ -153,7 +153,6 @@ check_diag_directory
 docker_args=(
 	--name=rnode
 	--network=host
-	--env-file=/var/lib/rnode-static/environment.docker
 	-v /var/lib/rnode:/var/lib/rnode
 	-v $DIAG_DIR:$DIAG_DIR
 	-v /var/lib/rnode-static:/var/lib/rnode-static:ro
@@ -189,7 +188,7 @@ if [[ $RD_OPTION_DEBUG == yes ]]; then
 fi
 
 if [[ -f /var/lib/rnode-static/environment.docker ]]; then
-	docker_args+=(--entrypoint=/opt/docker/bin/rnode)
+	docker_args+=(--env-file=/var/lib/rnode-static/environment.docker)
 fi
 
 if [[ -f /var/lib/rnode-static/local.env ]]; then
