@@ -167,7 +167,6 @@ launcher_args=(
 	-XX:ErrorFile=$DIAG_DIR/hs_err.log
 	-XX:MaxJavaStackTraceDepth=100000
 	-Dlogback.configurationFile=/var/lib/rnode-static/logback.xml
-	-p docker
 	-c /var/lib/rnode/rnode.conf
 	$(get_rnode_launcher_args)
 )
