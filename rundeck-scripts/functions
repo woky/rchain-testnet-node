@@ -201,7 +201,7 @@ check_diag_directory()
 {
 	if [[ ! -d $DIAG_DIR ]]; then
 		echo "Local path for diagnostic files $DIAG_DIR does not exist" >&2
-		echo "Most probably RNode was stopped and/or not yet started." >&2
+		echo "Most probably RNode was not yet started on this machine." >&2
 		return 1
 	else
 		init_diag_variables $DIAG_DIR
