@@ -19,7 +19,8 @@ case "$RD_OPTION_STATE" in
 		EOF
 
 		systemctl unmask autopropose
-		systemctl enable --now autopropose
+		systemctl enable autopropose
+		systemctl restart autopropose
 		;;
 	*)
 		echo "Invalid state: '$RD_OPTION_STATE'"
