@@ -61,12 +61,15 @@ while systemctl is-active $mask_services >/dev/null 2>&1; do
 done
 echo "OK"
 
+export DEBIAN_FRONTEND=noninteractive
+
 # Install our dependencies
 
-export DEBIAN_FRONTEND=noninteractive
-# after boot apt often fails to find git-crypt after single apt update
-apt update -q ; apt update -q
-apt install -yq --no-install-recommends git git-crypt cron
+if ! type -P git git-crypt >/dev/null || [[ ! -d /etc/cron.hourly ]]; then
+	# after boot apt often fails to find git-crypt after single apt update
+	apt update -q ; sleep 10 ; apt update -q
+	apt install -yq --no-install-recommends git git-crypt cron
+fi
 
 # Clone or update main Git repositoriy
 
@@ -74,6 +77,8 @@ apt install -yq --no-install-recommends git git-crypt cron
 
 if [[ ! -d $REPO_DIR ]]; then
 	git clone -n $REPO_URL -b $REPO_BRANCH $REPO_DIR
+else
+	git -C $REPO_DIR remote set-url origin $REPO_URL
 fi
 
 cd $REPO_DIR
@@ -93,6 +98,9 @@ if ! (( $FORCE_UPDATE )); then
 		fi
 	fi
 else
+	if [[ -f .git/MERGE_HEAD ]]; then
+		git merge --abort
+	fi
 	git checkout -f $REPO_BRANCH
 	git reset --hard origin/$REPO_BRANCH
 fi

@@ -37,8 +37,13 @@ for i in $(seq 0 $((count-1))); do
 	host=node$i
 	node_dir="$out_dir/$host"
 	mkdir -p "$node_dir"
-	$scripts_dir/generate-node-files $host $network_id "$node_dir" "$bootstrap_url"
-	if [[ -z "$bootstrap_url" ]]; then
-		bootstrap_url="$(jq -r .rnode.server.bootstrap "$node_dir/rnode.conf")"
-	fi
+	$scripts_dir/generate-node-files $host.$domain "$node_dir"
 done
+
+bootstrap_id="$($scripts_dir/pem-key-to-node-id $out_dir/node0/node.key.pem)"
+bootstrap_url="rnode://$bootstrap_id@node0.$domain?protocol=40400&discovery=40404"
+mkdir -p "$out_dir/rnode.conf.d"
+jo -d. -p \
+	"rnode.server.bootstrap=$bootstrap_url" \
+	"rnode.server.network-id=$network_id" \
+	>"$out_dir/rnode.conf.d/40-network.conf"
