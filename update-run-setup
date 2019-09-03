@@ -95,6 +95,9 @@ if ! (( $FORCE_UPDATE )); then
 		fi
 	fi
 else
+	if [[ -f .git/MERGE_HEAD ]]; then
+		git merge --abort
+	fi
 	git checkout -f $REPO_BRANCH
 	git reset --hard origin/$REPO_BRANCH
 fi
