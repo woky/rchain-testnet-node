@@ -74,6 +74,8 @@ apt install -yq --no-install-recommends git git-crypt cron
 
 if [[ ! -d $REPO_DIR ]]; then
 	git clone -n $REPO_URL -b $REPO_BRANCH $REPO_DIR
+else
+	git -C $REPO_DIR remote set-url origin $REPO_URL
 fi
 
 cd $REPO_DIR
