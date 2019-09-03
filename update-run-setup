@@ -61,12 +61,15 @@ while systemctl is-active $mask_services >/dev/null 2>&1; do
 done
 echo "OK"
 
+export DEBIAN_FRONTEND=noninteractive
+
 # Install our dependencies
 
-export DEBIAN_FRONTEND=noninteractive
-# after boot apt often fails to find git-crypt after single apt update
-apt update -q ; apt update -q
-apt install -yq --no-install-recommends git git-crypt cron
+if ! type -P git git-crypt >/dev/null || [[ ! -d /etc/cron.hourly ]]; then
+	# after boot apt often fails to find git-crypt after single apt update
+	apt update -q ; sleep 10 ; apt update -q
+	apt install -yq --no-install-recommends git git-crypt cron
+fi
 
 # Clone or update main Git repositoriy
 
