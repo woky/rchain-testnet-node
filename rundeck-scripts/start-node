@@ -2,6 +2,9 @@
 set -e -o pipefail
 source "$(dirname $0)/functions"
 
+# This fails if there are no RD_OPTION_ variables and that's fine.
+env | grep RD_OPTION_ >/tmp/start-node.env
+
 if [[ "$RD_OPTION_STOP_NODE" == yes ]]; then
 	stop-node
 fi
@@ -146,6 +149,8 @@ rm -f $DIAG_DIR
 ln -s $LOCAL_DIAG_ROOT/$DIAG_TAG $DIAG_DIR
 
 check_diag_directory
+
+mv /tmp/start-node.env $DIAG_DIR/
 
 ######################################################################
 # BEGIN docker run
