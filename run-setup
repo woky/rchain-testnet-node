@@ -106,13 +106,32 @@ install -d -m755 /usr/lib/systemd/system/
 install -C -m644 *.service *.timer *.mount -t /usr/lib/systemd/system/
 systemctl daemon-reload
 
-for unit in sync-diag.timer autopropose.service mnt-heapdumps.mount; do
-	unit_state=$(systemctl list-unit-files --no-legend $unit | awk '{print $2}')
-	if [[ $unit_state != masked* ]]; then
-		systemctl enable $unit
-		systemctl restart $unit
+restart-unit-if-not-masked () {
+	if [[ $# -ne 1 ]]; then
+	    echo "restart-unit-if-not-masked: $#: wrong number of arguments"
+	    return 1
 	fi
+	local unit; unit=$1; shift
+
+	local unit_state; unit_state=$(systemctl list-unit-files --no-legend "$unit" | awk '{print $2}')
+
+	if [[ $unit_state != masked* ]]; then
+	    systemctl enable "$unit"
+	    systemctl restart "$unit"
+	fi
+}
+
+for unit in sync-diag.timer autopropose.service mnt-heapdumps.mount; do
+    restart-unit-if-not-masked "$unit"
 done
+
+if [[ ${PROFILE:-} = sandboxnet ]]; then
+    systemctl stop autopropose.service
+    systemctl disable autopropose.service
+    restart-unit-if-not-masked autopropose.py.service
+else
+    restart-unit-if-not-masked autopropose.service
+fi
 
 pushd scripts >/dev/null
 python3 -mvenv venv
@@ -128,3 +147,6 @@ if [[ ! -e YourKit-JavaProfiler-$yourkit_version ]]; then
 	ln -srf YourKit-JavaProfiler-$yourkit_version YourKit-JavaProfiler
 fi
 popd >/dev/null
+
+
+# vim:noexpandtab:

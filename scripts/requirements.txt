@@ -2,3 +2,4 @@ ecdsa
 pycryptodome
 eth-hash[pycryptodome]
 cryptography
+influxdb
