@@ -34,15 +34,9 @@ def main():
 
     deploy_env = {}
     if 'contract' in config:
-        deploy_env['contract'] = config['contract']
-    elif 'RD_OPTION_CONTRACT' in os.environ:
-        deploy_env['RD_OPTION_CONTRACT'] = os.environ['RD_OPTION_CONTRACT']
+        deploy_env['RD_OPTION_CONTRACT'] = config['contract']
 
-    for env_var in ('RD_OPTION_DEPLOY_KEY', 'RD_OPTION_RNODE_LAUNCHER_ARGS', 'RD_OPTION_RNODE_DEPLOY_ARGS'):
-        if env_var in os.environ:
-            deploy_env[env_var] = os.environ[env_var]
-
-    LOGGER.info('Deploying contract %s every %d seconds', deploy_env.get('contract'), deploy_no_sooner_than_every)
+    LOGGER.info('Deploying contract %s every %d seconds', deploy_env.get('RD_OPTION_CONTRACT'), deploy_no_sooner_than_every)
 
     while True:
         while True:
@@ -53,7 +47,7 @@ def main():
 
         try:
             deploy_started_at = int(time.monotonic())
-            LOGGER.info("Deploying %s", deploy_env.get('contract'))
+            LOGGER.info("Deploying %s", deploy_env.get('RD_OPTION_CONTRACT'))
             subprocess.check_output(['/opt/rchain-testnet-node/rundeck-scripts/deploy'], env=deploy_env)
         except subprocess.CalledProcessError:
             LOGGER.exception('deploy')
