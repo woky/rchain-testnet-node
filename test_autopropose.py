@@ -1,7 +1,7 @@
 import autopropose
 
 
-def test_parse_conf_file():
+def test_parse_conf_file() -> None:
     conf_file_contents = """
 period=60
 contract='none'

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import sys
 import time
 import logging
 import subprocess
@@ -8,6 +9,7 @@ import contextlib
 from typing import (
     Dict,
     Tuple,
+    Iterator,
 )
 
 from ecdsa import SigningKey
@@ -72,7 +74,7 @@ def deploy(contract: str, private_key: str) -> None:
 
 
 
-def propose():
+def propose() -> None:
     propose_command = [
         'docker',
         'exec',
@@ -94,7 +96,7 @@ def propose():
 
 
 @contextlib.contextmanager
-def must_take_at_least(seconds):
+def must_take_at_least(seconds: int) -> Iterator[None]:
     started_at = int(time.monotonic())
     try:
         yield
@@ -107,7 +109,7 @@ def must_take_at_least(seconds):
 
 
 
-def main():
+def main() -> int:
     config = parse_conf_file('/var/lib/rnode-static/autopropose.conf')
 
     contract = config.get('contract')
@@ -129,6 +131,8 @@ def main():
 
         propose()
 
+    return 0
+
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
