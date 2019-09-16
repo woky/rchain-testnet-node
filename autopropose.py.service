@@ -4,7 +4,9 @@ Requires=docker.service
 After=docker.service
 
 [Service]
-ExecStart=/opt/rchain-testnet-node/autopropose.py
+WorkingDirectory=/opt/rchain-testnet-node
+ExecStart=/root/.local/bin/pipenv run /opt/rchain-testnet-node/autopropose.py
+EnvironmentFile=/opt/rchain-testnet-node/autopropose.py.env
 Restart=on-failure
 RestartSec=15
 
