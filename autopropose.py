@@ -127,7 +127,7 @@ def main() -> int:
 
         with must_take_at_least(deploy_no_sooner_than_every):
             private_key, _ = generate_keypair()
-            deploy(contract, private_key)
+            deploy('./examples/{}'.format(contract), private_key)
 
         propose()
 
