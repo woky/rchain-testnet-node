@@ -38,9 +38,15 @@ try_download_file()
 	fi
 )
 
-try_download_file "$RD_OPTION_BONDS_FILE_URL"   /var/lib/rnode/genesis/_bonds-thirdparty.txt
 try_download_file "$RD_OPTION_WALLETS_FILE_URL" /var/lib/rnode/genesis/wallets.txt
 try_download_file "$RD_OPTION_RNODE_OVERRIDE_CONF_URL" /var/lib/rnode/rnode.override.conf 600
+
+ln -sf /var/lib/rnode-static/node.*.pem /var/lib/rnode/
+
+######################################################################
+# create bonds.txt file
+
+bonds_tmp=$(mktemp bonds.txt.XXXXXX)
 
 i=1
 while read pk; do
@@ -48,12 +54,15 @@ while read pk; do
 	: $((i++))
 done \
 	< /var/lib/rnode-static/validator-public-keys.txt \
-	> /var/lib/rnode/genesis/bonds.txt
+	> $bonds_tmp
 
-sed 's/^[[:blank:]]*//; s/[[:blank:]]*$//; /^$/d' \
-	/var/lib/rnode/genesis/_bonds-thirdparty.txt >>/var/lib/rnode/genesis/bonds.txt
+if [[ -n $RD_OPTION_BONDS_FILE_URL ]]; then
+	curl -fsSL "$RD_OPTION_BONDS_FILE_URL" |\
+		sed 's/^[[:blank:]]*//; s/[[:blank:]]*$//; /^$/d' >>$bonds_tmp
+fi
 
-ln -sf /var/lib/rnode-static/node.*.pem /var/lib/rnode/
+tac $bonds_tmp | awk '!seen[$1]++' | tac >/var/lib/rnode/genesis/bonds.txt
+rm $bonds_tmp
 
 ######################################################################
 # config load and adjustments
