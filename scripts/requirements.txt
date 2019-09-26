@@ -3,3 +3,6 @@ pycryptodome
 eth-hash[pycryptodome]
 cryptography
 influxdb
+pyhocon
+pyjq
+natsort

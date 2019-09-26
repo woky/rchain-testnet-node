@@ -27,18 +27,20 @@ docker pull $RD_OPTION_RNODE_DOCKER_IMAGE
 mkdir -p /var/lib/rnode /var/lib/rnode/genesis
 
 try_download_file()
-{
-	local url="$1" dest=$2 status
+(
+	local url="$1" dest=$2 mode=${3:-644}
+	umask $mode # local to myself, I'm running in sub-process (() vs {})
 	if [[ -z $url ]]; then
 		touch $dest
 	else
 		echo "Downloading $url to $dest"
 		curl -fsSL -o "$dest" "$url"
 	fi
-}
+)
 
 try_download_file "$RD_OPTION_BONDS_FILE_URL"   /var/lib/rnode/genesis/_bonds-thirdparty.txt
 try_download_file "$RD_OPTION_WALLETS_FILE_URL" /var/lib/rnode/genesis/wallets.txt
+try_download_file "$RD_OPTION_RNODE_OVERRIDE_CONF_URL" /var/lib/rnode/rnode.override.conf 600
 
 i=1
 while read pk; do
