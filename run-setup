@@ -106,14 +106,9 @@ install -d -m755 /usr/lib/systemd/system/
 install -C -m644 sync-diag.service *.timer *.mount -t /usr/lib/systemd/system/
 
 if [[ ${PROFILE:-} = sandboxnet ]]; then
-	apt install --yes --no-install-recommends python3-pip
-	python3 -m pip install --user pipenv
-	/root/.local/bin/pipenv sync
-	install --compare --mode=644 autopropose.py.service --no-target-directory \
-		/usr/lib/systemd/system/autopropose.service
+    install --compare --mode=644 autopropose.py.service --no-target-directory /usr/lib/systemd/system/autopropose.service
 else
-	install --compare --mode=644 autopropose.service --no-target-directory \
-		/usr/lib/systemd/system/autopropose.service
+    install --compare --mode=644 autopropose.service --no-target-directory /usr/lib/systemd/system/autopropose.service
 fi
 
 systemctl daemon-reload
