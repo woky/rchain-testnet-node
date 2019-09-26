@@ -18,7 +18,8 @@ apt install -y --no-install-recommends \
 	openjdk-11-jdk-headless \
 	nginx libnginx-mod-http-fancyindex \
 	coreutils tree \
-	python3 python3-venv build-essential \
+	build-essential autoconf automake libtool \
+	python3 python3-venv python3-dev \
 	unzip graphviz
 
 curl -sSfL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
@@ -31,6 +32,15 @@ echo "deb http://packages.cloud.google.com/apt gcsfuse-bionic main" \
 
 apt update
 apt install -y --no-install-recommends docker-ce gcsfuse
+
+pushd scripts >/dev/null
+python3 -mvenv venv
+source ./venv/bin/activate
+# pyjq setup fails with errors similar to https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=917006
+# explicitly installing wheel fixes the error
+pip3 install wheel
+pip3 install -r requirements.txt
+popd >/dev/null
 
 network_dir="node-files${PROFILE:+.$PROFILE}"
 node_dir=$network_dir/$(hostname)
@@ -61,8 +71,8 @@ install -C -m644 \
 rm -f /var/lib/rnode-static/validator-public-keys.txt
 
 for net_node_dir in $network_dir/node*; do
-	net_node_pubkey=$(_QUIET=1 \
-		./scripts/merge-json-fragments $net_node_dir/rnode.conf.d |\
+	net_node_pubkey=$(
+		./scripts/merge-hocon-fragments -i $net_node_dir/rnode.conf.d |\
 		jq -r .rnode.casper.'"validator-public-key"')
 	echo $net_node_pubkey >>/var/lib/rnode-static/validator-public-keys.txt
 done
@@ -120,12 +130,6 @@ for unit in sync-diag.timer autopropose.service mnt-heapdumps.mount; do
 		systemctl restart $unit
 	fi
 done
-
-pushd scripts >/dev/null
-python3 -mvenv venv
-source ./venv/bin/activate
-pip3 -q install -r requirements.txt
-popd >/dev/null
 
 yourkit_version=2019.1
 pushd /opt >/dev/null
