@@ -6,6 +6,7 @@ import os.path
 from glob import glob
 
 import pyjq
+from natsort import natsorted
 from pyhocon import ConfigFactory
 from pyhocon.converter import HOCONConverter
 
@@ -13,7 +14,7 @@ from pyhocon.converter import HOCONConverter
 def get_fragment_paths(fragment_args, ignore_missing):
     for arg in fragment_args:
         if os.path.isdir(arg):
-            for conf_path in sorted(glob(os.path.join(arg, '*.conf'))):
+            for conf_path in natsorted(glob(os.path.join(arg, '*.conf'))):
                 if os.path.isfile(conf_path):
                     yield conf_path
         elif os.path.exists(arg):
