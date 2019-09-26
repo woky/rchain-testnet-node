@@ -117,15 +117,7 @@ systemctl reload nginx
 mkdir -p /mnt/heapdumps
 
 install -d -m755 /usr/lib/systemd/system/
-install -C -m644 sync-diag.service *.timer *.mount -t /usr/lib/systemd/system/
-
-if [[ ${PROFILE:-} = sandboxnet ]]; then
-    install --compare --mode=644 autopropose.py.service --no-target-directory /usr/lib/systemd/system/autopropose.service
-else
-    install --compare --mode=644 autopropose.service --no-target-directory /usr/lib/systemd/system/autopropose.service
-fi
-
-systemctl daemon-reload
+install -C -m644 *.service *.timer *.mount -t /usr/lib/systemd/system/
 
 for unit in sync-diag.timer autopropose.service mnt-heapdumps.mount; do
 	unit_state=$(systemctl list-unit-files --no-legend $unit | awk '{print $2}')
@@ -143,6 +135,3 @@ if [[ ! -e YourKit-JavaProfiler-$yourkit_version ]]; then
 	ln -srf YourKit-JavaProfiler-$yourkit_version YourKit-JavaProfiler
 fi
 popd >/dev/null
-
-
-# vim:noexpandtab:
