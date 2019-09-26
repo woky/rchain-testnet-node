@@ -40,6 +40,7 @@ try_download_file()
 
 try_download_file "$RD_OPTION_BONDS_FILE_URL"   /var/lib/rnode/genesis/_bonds-thirdparty.txt
 try_download_file "$RD_OPTION_WALLETS_FILE_URL" /var/lib/rnode/genesis/wallets.txt
+try_download_file "$RD_OPTION_RNODE_OVERRIDE_CONF_URL" /var/lib/rnode/rnode.override.conf 600
 
 i=1
 while read pk; do

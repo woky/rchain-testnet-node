@@ -87,6 +87,10 @@ install -C -m600 \
 	$node_dir/rnode.conf.d/*.conf \
 	-t /var/lib/rnode-static/rnode.conf.d/
 
+# User override rnode.conf. Broken link will just be ignored.
+ln -sf /var/lib/rnode/rnode.override.conf \
+	/var/lib/rnode-static/rnode.conf.d/999-rnode.override.conf
+
 shopt -u nullglob
 
 if [[ -z "$(docker ps -q -f name='^logspout$')" ]]; then
