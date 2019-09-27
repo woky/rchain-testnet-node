@@ -65,9 +65,19 @@ tac $bonds_tmp | awk '!seen[$1]++' | tac >/var/lib/rnode/genesis/bonds.txt
 rm $bonds_tmp
 
 ######################################################################
-# config load and adjustments
+# generate config file
 
 merge_rnode_conf_fragments
+
+# Create rnode.redacted.conf with default permissions so that it's
+# accessible by nginx. umask should have world readable bit cleared.
+jq 'del(.rnode.server.casper."validator-private-key")' \
+	< /var/lib/rnode/rnode.conf \
+	> /var/lib/rnode/rnode.redacted.conf
+
+######################################################################
+# load config file and adjust command line options
+
 parse_rnode_config
 
 if [[
