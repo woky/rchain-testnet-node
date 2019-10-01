@@ -2,6 +2,9 @@
 set -e -o pipefail
 source "$(dirname $0)/functions"
 
+# This fails if there are no RD_OPTION_ variables and that's fine.
+env | grep RD_OPTION_ >/tmp/start-node.env
+
 if [[ "$RD_OPTION_STOP_NODE" == yes ]]; then
 	stop-node
 fi
@@ -24,18 +27,26 @@ docker pull $RD_OPTION_RNODE_DOCKER_IMAGE
 mkdir -p /var/lib/rnode /var/lib/rnode/genesis
 
 try_download_file()
-{
-	local url="$1" dest=$2 status
+(
+	local url="$1" dest=$2 mode=${3:-644}
+	umask $mode # local to myself, I'm running in sub-process (() vs {})
 	if [[ -z $url ]]; then
 		touch $dest
 	else
 		echo "Downloading $url to $dest"
 		curl -fsSL -o "$dest" "$url"
 	fi
-}
+)
 
-try_download_file "$RD_OPTION_BONDS_FILE_URL"   /var/lib/rnode/genesis/_bonds-thirdparty.txt
 try_download_file "$RD_OPTION_WALLETS_FILE_URL" /var/lib/rnode/genesis/wallets.txt
+try_download_file "$RD_OPTION_RNODE_OVERRIDE_CONF_URL" /var/lib/rnode/rnode.override.conf 600
+
+ln -sf /var/lib/rnode-static/node.*.pem /var/lib/rnode/
+
+######################################################################
+# create bonds.txt file
+
+bonds_tmp=$(mktemp bonds.txt.XXXXXX)
 
 i=1
 while read pk; do
@@ -43,17 +54,30 @@ while read pk; do
 	: $((i++))
 done \
 	< /var/lib/rnode-static/validator-public-keys.txt \
-	> /var/lib/rnode/genesis/bonds.txt
+	> $bonds_tmp
 
-sed 's/^[[:blank:]]*//; s/[[:blank:]]*$//; /^$/d' \
-	/var/lib/rnode/genesis/_bonds-thirdparty.txt >>/var/lib/rnode/genesis/bonds.txt
+if [[ -n $RD_OPTION_BONDS_FILE_URL ]]; then
+	curl -fsSL "$RD_OPTION_BONDS_FILE_URL" |\
+		sed 's/^[[:blank:]]*//; s/[[:blank:]]*$//; /^$/d' >>$bonds_tmp
+fi
 
-ln -sf /var/lib/rnode-static/node.*.pem /var/lib/rnode/
+tac $bonds_tmp | awk '!seen[$1]++' | tac >/var/lib/rnode/genesis/bonds.txt
+rm $bonds_tmp
 
 ######################################################################
-# config load and adjustments
+# generate config file
 
 merge_rnode_conf_fragments
+
+# Create rnode.redacted.conf with default permissions so that it's
+# accessible by nginx. umask should have world readable bit cleared.
+jq 'del(.rnode.server.casper."validator-private-key")' \
+	< /var/lib/rnode/rnode.conf \
+	> /var/lib/rnode/rnode.redacted.conf
+
+######################################################################
+# load config file and adjust command line options
+
 parse_rnode_config
 
 if [[
@@ -146,6 +170,8 @@ rm -f $DIAG_DIR
 ln -s $LOCAL_DIAG_ROOT/$DIAG_TAG $DIAG_DIR
 
 check_diag_directory
+
+mv /tmp/start-node.env $DIAG_DIR/
 
 ######################################################################
 # BEGIN docker run

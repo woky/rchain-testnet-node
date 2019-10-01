@@ -58,7 +58,7 @@ merge_rnode_conf_fragments()
 (
 	echo "Merging configuration fragments to /var/lib/rnode/rnode.conf"
 	umask 077
-	merge-json-fragments /var/lib/rnode-static/rnode.conf.d \
+	merge-hocon-fragments /var/lib/rnode-static/rnode.conf.d \
 		>/var/lib/rnode/rnode.conf
 )
 
