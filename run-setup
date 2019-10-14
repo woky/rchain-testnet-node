@@ -31,7 +31,8 @@ echo "deb http://packages.cloud.google.com/apt gcsfuse-bionic main" \
 	>/etc/apt/sources.list.d/gcsfuse.list
 
 apt update
-apt install -y --no-install-recommends docker-ce gcsfuse
+apt install -y --no-install-recommends --no-upgrade docker-ce
+apt install -y --no-install-recommends gcsfuse
 
 pushd scripts >/dev/null
 python3 -mvenv venv
