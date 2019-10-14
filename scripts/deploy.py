@@ -5,7 +5,7 @@ from rchain.crypto import PrivateKey
 from rchain.client import RClient
 
 root = logging.getLogger()
-root.setLevel(logging.DEBUG)
+root.setLevel(logging.INFO)
 
 with grpc.insecure_channel('localhost:40401') as channel:
     client = RClient(channel)
