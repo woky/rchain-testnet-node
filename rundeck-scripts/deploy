@@ -27,4 +27,6 @@ if [[ -z "$priv_key" ]]; then
 fi
 
 echo "Deploying $contract with private key $priv_key"
-exec python3 $INSTALL_DIR/scripts/deploy.py $priv_key "$contract"
+pushd $INSTALL_DIR/scripts/ > /dev/null
+exec python3 deploy.py $priv_key "$contract" scripts.conf
+popd > /dev/null
