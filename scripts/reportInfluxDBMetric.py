@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timedelta
 import socket
 from influxdb import InfluxDBClient
 from pyhocon import ConfigFactory
@@ -9,7 +9,7 @@ def reportInfluxDBMetric(metric, value, host, port, db):
         "tags": {
             "host": socket.gethostname()
         },
-        "time": datetime.datetime.now().isoformat(),
+        "time": (datetime.now()-timedelta(seconds=value)).isoformat(),
         "points": [{
             "measurement": metric,
             "fields": {
