@@ -6,4 +6,4 @@ influxdb
 pyhocon
 pyjq
 natsort
-git+https://github.com/rchain/pyrchain@f21903565d42af6155e4703cdd163b98be47d46b
+git+https://github.com/rchain/pyrchain@44e513f390f979c63cce2fff5920f209fb164e8a
