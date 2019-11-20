@@ -9,7 +9,7 @@ resource "google_dns_record_set" "node_dns_record" {
   name = "node${count.index}${var.dns_suffix}."
   managed_zone = "rchain-dev"
   type = "A"
-  ttl = 300
+  ttl = 3600
   rrdatas = ["${google_compute_address.node_ext_addr.*.address[count.index]}"]
 }
 
