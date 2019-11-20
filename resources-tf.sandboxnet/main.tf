@@ -16,4 +16,8 @@ provider "google-beta" {
 
 terraform {
   required_version = ">= 0.12"
+  backend "gcs" {
+    bucket = "rchain-terraform-state"
+    prefix = "sandboxnet"
+  }
 }
