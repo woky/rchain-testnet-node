@@ -65,5 +65,10 @@ resource "google_compute_instance" "node_host" {
   provisioner "remote-exec" {
     script = "../bootstrap.sandboxnet"
   }
+
+  scheduling {
+    preemptible       = true
+    automatic_restart = false
+  }
 }
 
