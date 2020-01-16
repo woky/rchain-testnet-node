@@ -17,7 +17,7 @@ resource "google_compute_instance" "node_host" {
   count        = var.node_count
   name         = "${var.resources_name}-node${count.index}"
   hostname     = "node${count.index}${var.dns_suffix}"
-  machine_type = "n1-highmem-2"
+  machine_type = "n1-standard-4"
 
   boot_disk {
     initialize_params {
