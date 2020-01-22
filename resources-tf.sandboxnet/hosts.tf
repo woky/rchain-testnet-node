@@ -67,8 +67,8 @@ resource "google_compute_instance" "node_host" {
   }
 
   scheduling {
-    preemptible       = true
-    automatic_restart = false
+    preemptible       = false
+    automatic_restart = true
   }
 }
 
